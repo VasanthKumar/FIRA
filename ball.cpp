@@ -1,172 +1,39 @@
-#include"ball.h"
-#include<iostream>
-vector<vector<Point> > contours;
+#include "ball.h"
 
-vector<Vec4i> hierarchy;
-
-bool drawing_box = false;
-Rect box;
-Mat image;
-int flag = 0;
-
-void draw_box( Mat img, Rect rect ){
-
-	rectangle( img, rect,cvScalar(0xff,0x00,0x00) );
-}
-
-double dist( Point2f a,Point2f b ){
-
-	double t =0 ;
-	t = pow((a.x-b.x),2)+pow((a.y-b.y),2);
-	t = pow(t,0.5);
-	return t;
-}
-
-
-static void onMouse( int event, int x, int y, int, void* )
+ vector<vector<Point> > contours;
+ vector<Vec4i> hierarchy;
+ 
+Mat ball::getMask(Mat src,int hue_lower,int hue_upper)
 {
-    switch( event ){
-		case CV_EVENT_MOUSEMOVE: 
-			if( drawing_box ){
-				box.width = x-box.x;
-				box.height = y-box.y;
-			}
-			break;
-
-		case CV_EVENT_LBUTTONDOWN:
-			drawing_box = true;
-			box = cvRect( x, y, 0, 0 );
-			break;
-
-		case CV_EVENT_LBUTTONUP:
-			drawing_box = false;
-			
-			if( box.width < 0 ){
-				box.x += box.width;
-				box.width *= -1;
-			}
-			if( box.height < 0 ){
-				box.y += box.height;
-				box.height *= -1;
-			}
-			box.x+=1;
-			box.y+=1;
-			box.width-=1;
-			box.height-=1;
-			draw_box( image, box );
-			
- 			flag=1;
- 			
-			break;
-		}
-}
-
-Rect Roi( Mat argm )
-{
-    Mat image0;
-    argm.copyTo(image0);
-    Rect b;
-    
-    if( image0.empty() )
-    {
-       printf("Image empty\n");
-        return Rect();
-    }
-  image0.copyTo(image);
-  Mat ROI;
-  char c;
-    namedWindow( "image", 1 );
-
-    setMouseCallback( "image", onMouse, 0 );
-    while(1)
-    {	
-  
-    	if(drawing_box)
-    	{
-    		draw_box(image,box);
-    	}
-    	if(flag==1)
-    	{
-    		
-    		ROI = image(box);
-    		imshow("ROI",ROI);
-    		c = waitKey(0);
-    		if(c=='c')
-    		{
-    			break;
-    		}
-    		else
-    		{
-    			ROI.release();
-    			destroyWindow("ROI");
-    			image0.copyTo(image);
-    			
-    			flag = 0;
-    		}
-    	}
-    	imshow("image",image);
-    	if(waitKey(15)==27)
-    	return Rect();
-    	image0.copyTo(image);
-    	
-     }	
-     b = box;
-    
-    return b;
-}
-
-Mat ball::hueRange (Mat src, int hue_lower, int hue_upper,int flag=0){
-
-	printf("\nEntering hueRange\n");
-	if(src.depth()!=CV_8U)
-	{
-		printf("\nError in function hueRange. Function supports only CV_8U. Exiting.. ");
-	}
+	printf("\nEntering getMask\n");
 	
-	Mat temp_image = Mat::zeros(src.cols, src.rows, CV_8U);
-	Mat temp_image_gray = Mat::zeros(src.cols, src.rows,CV_8U);
-	Mat temp_image_return = Mat::zeros(src.cols,src.rows,CV_8U);
-	Mat element = getStructuringElement(MORPH_RECT,Size( 2*1 + 1, 2*1+1 ),Point( 1,1) );
+	Mat temp_image = Mat::zeros(src.cols,src.rows,CV_8UC3);
+	Mat temp_image_gray = Mat::zeros(src.cols,src.rows,CV_8UC1);
+	printf("\n%d %d\n",src.depth(),src.type());
+	Mat element = getStructuringElement(MORPH_RECT,Size( 2*1 + 1, 2*1+1 ),Point( -1,-1) );
 	
 	cvtColor(src,temp_image,CV_BGR2HSV);
-	inRange(temp_image,Scalar(hue_lower,20,20),Scalar(hue_upper,255,255),temp_image_gray);
 	
-	morphologyEx(temp_image_gray,temp_image_gray,2,element);
+	inRange(temp_image,Scalar(hue_lower,30,0),Scalar(hue_upper,255,255),temp_image_gray);
+	
+	//morphologyEx(temp_image_gray,temp_image_gray,2,element);
 
-	printf("\nLeaving hueRange\n");
-	if(flag==0)
-	{
-		return temp_image_gray;
-	}
-	else
-	{
-		src.copyTo(temp_image_return,temp_image_gray);
-		return temp_image_return;
-	}
-	
-		
+	printf("\nLeaving getMask\n");
+	return temp_image_gray;
 }
 
-void ball::con(int flag=0)			//Rect
+void ball::findPosition(int flag=0)
 {
-		printf("\nEntering con\n");
-	Mat temp = Mat(ball_image.cols,ball_image.rows,CV_8UC1);
-	
+	printf("\nEntering findPosition\n");
+	Mat temp = Mat(mask.cols,mask.rows,CV_8UC1);
 	Mat display = Mat::zeros(temp.cols,temp.rows,CV_8UC3);
-	
-	
-	if(ball_image.channels()==3)
-	{
-		cvtColor(ball_image,temp,CV_BGR2GRAY);
-	}
-	else if(ball_image.channels()==1)
-	{
-		ball_image.copyTo(temp);
-	}
-	
+	mask.copyTo(temp);
 	imshow("temp",temp);
-	
-	findContours(temp,contours,hierarchy,CV_RETR_CCOMP,CV_CHAIN_APPROX_NONE);
+	printf("\nBBOX:(%d,%d,%d,%d)\n",bounding_box.x,bounding_box.y,bounding_box.width,bounding_box.height);
+	printf("\nVelocity:(%f,%f)\n",velocity.x,velocity.y);
+	Mat t = temp(bounding_box);
+	imshow("t",t);
+	findContours(t,contours,hierarchy,CV_RETR_CCOMP,CV_CHAIN_APPROX_NONE,Point2f(bounding_box.x,bounding_box.y));
 	
 	int i=0,counter=0,pos=-1,posarea=-1;
 	vector<Rect>boundrect(contours.size());
@@ -189,115 +56,109 @@ void ball::con(int flag=0)			//Rect
 				}
 			}	
 		i++;
-		
 	}
 	
-	if(counter>0)
+	if(counter==1)
 	{
-	  
-	   bbox.x = boundrect[posarea].x - boundrect[posarea].width/2;
-	   bbox.y = boundrect[posarea].y - boundrect[posarea].height/2;
-	   bbox.width = boundrect[posarea].width*2;
-	   bbox.height = boundrect[posarea].height*2;
-	   pos_ball_centre_prev = pos_ball_centre;
-	   pos_ball_centre.x = bbox.x + boundrect[posarea].width/2;
-	   pos_ball_centre.y = bbox.y + boundrect[posarea].height/2; 
-	   circle(display,pos_ball_centre+vel_ball,10,Scalar(0,255,0),CV_FILLED);
+	   bounding_box.x = boundrect[posarea].x - boundrect[posarea].width/2;
+	   bounding_box.y = boundrect[posarea].y - boundrect[posarea].height/2;
+	   bounding_box.width = boundrect[posarea].width*2;
+	   bounding_box.height = boundrect[posarea].height*2;
 	   
-	   printf("\nPredCentre:(%f,%f)\t",pos_ball_centre_prev.x+vel_ball.x,pos_ball_centre_prev.y+vel_ball.y); 
-	   printf("Centre:(%f,%f)\n",pos_ball_centre.x,pos_ball_centre.y);
-	   calc_velocity();
-	  
+	   prev_center = center;
+	   center.x = bounding_box.x + boundrect[posarea].width;
+	   center.y = bounding_box.y + boundrect[posarea].height; 
+	   calculate_velocity();
 	   
-	    if((bbox.width>dbox.width)||(bbox.height>dbox.height)) 
+	   bounding_box.x = bounding_box.x + velocity.x;
+	   bounding_box.y = bounding_box.y + velocity.y;
+	   bounding_box.width+= fabs(velocity.x);
+	   bounding_box.height+= fabs(velocity.y);
+	   
+	   if(bounding_box.x<0)
 	   {
-	   	bbox = dbox; 
+	   	bounding_box.x=0;
+	   }
+	    if(bounding_box.y<0)
+	   {
+	   	bounding_box.y=0;
+	   }
+	    if(bounding_box.x>main_image.cols)
+	   {
+	   	bounding_box.x=0;
+	   	bounding_box.width=main_image.cols;
+	   }
+	   if(bounding_box.y>main_image.rows)
+	   {
+	   	bounding_box.y=0;
+	   	bounding_box.height=main_image.rows;
+	   }
+	  
+	   if(bounding_box.x+bounding_box.width>main_image.cols)
+	   {
+	   	bounding_box.x=main_image.cols-bounding_box.width;
+	   }
+	    if(bounding_box.y+bounding_box.height>main_image.rows)
+	   {
+	   	bounding_box.y=main_image.rows-bounding_box.height;
 	   }
 	   
-	  else
-	  {
-	  	  bbox.x = bbox.x + vel_ball.x;
-	 	  bbox.y = bbox.y + vel_ball.y;
-	 	  bbox.width+= fabs(vel_ball.x);
-	 	  bbox.height+= fabs(vel_ball.y);
-	 	  
-	 	  if(bbox.x<0)
-	 	  {
-	 	  	bbox.x=0;
-	 	  }
-	 	  if(bbox.y<0)
-	 	  {
-	 	  	bbox.y=0;
-	 	  }
-	 	  if(bbox.x+bbox.width>ball_image.cols)
-	 	  {
-	 	  	bbox.x = ball_image.cols - bbox.width;
-	 	  }
-	 	  
-	 	  if(bbox.y+bbox.height>ball_image.rows)
-	 	  {
-	 	  	bbox.y = ball_image.rows - bbox.height;
-	 	  }
-	 	  
-	 	  if((bbox.width>dbox.width)||(bbox.height>dbox.height))
-	 	  {
-	 	  	bbox = dbox;
-	 	  } 
-	  }
-	   //disp_ball_prop(); 		
+		
 	}
-	
 	else
 	{
-	    bbox = dbox;
-          //  pos_ball_centre_prev = pos_ball_centre;
-	    vel_ball = Point(0.0,0.0);	
+		bounding_box.x=0;
+		bounding_box.y=0;
+		bounding_box.width=Width;
+		bounding_box.height=Height;
+		prev_center.x = prev_center.x + velocity.x;
+		prev_center.y = prev_center.y + velocity.y; 
+			
 	}
-	
-	printf("\n%d\n",counter);
 	
 	imshow("display",display);
 	
-		printf("\nLeaving con \n");	
-			
-}	
-
-void ball::calc_velocity()
+}
+void ball::calculate_velocity()
 {
-	vel_ball.x = pos_ball_centre.x - pos_ball_centre_prev.x;
-	vel_ball.y = pos_ball_centre.y - pos_ball_centre_prev.y;
+	velocity.x = center.x - prev_center.x;
+	velocity.y = center.y - prev_center.y;
+}
+
+ball::ball()
+{
+	main_image = Mat(Width,Height,CV_8U);
+	
+	center = Point2f(0.0,0.0);
+	prev_center = Point2f(0.0,0.0);
+	calculate_velocity();
+	bounding_box = Rect(0,0,Width,Height);
+	
 }
 
 void ball::init(Mat src)
 {
-	
+	printf("\nEntering init\n");
 	src.copyTo(main_image);
-	ball_image = hueRange(src,4,12,0);
-	con();
 	
+	mask= getMask(main_image,5,10);
+	//waitKey(0);
+	
+	//mask = temp(bounding_box);
+	
+	findPosition();
+	printf("\nLeaving init\n");
 }
-ball::ball()
+
+void ball::display_ball_prop()
 {
-	pos_ball_centre = Point2f(0.0,0.0);
-	pos_ball_centre_prev = Point2f(0.0,0.0);
-	calc_velocity();
-	dbox = Rect(0,0,800,600);
-	bbox = Rect(0,0,800,600);
+	printf("\nCenter:(%f,%f)\t",center.x,center.y);
+	printf("\nPrevCentre:(%f,%f)\n",prev_center.x,prev_center.y);
+	printf("\nVelocity:(%f,%f)\n",velocity.x,velocity.y);
+	printf("\nBBOX:(%d,%d,%d,%d)\n",bounding_box.x,bounding_box.y,bounding_box.width,bounding_box.height);
 	
 }
 void ball::update()
 {
-	calc_velocity();
-		
-}
-void ball::disp_ball_prop()
-{
 	
-	printf("\nCentre:(%f,%f)\t",pos_ball_centre.x,pos_ball_centre.y);
-	printf("\nPrevCentre:(%f,%f)\n",pos_ball_centre_prev.x,pos_ball_centre_prev.y);
-	printf("\nVelocity:(%f,%f)\n",vel_ball.x,vel_ball.y);
-	printf("\nBBOX:(%d,%d,%d,%d)\n",bbox.x,bbox.y,bbox.width,bbox.height);
-	printf("\nDBOX:(%d,%d,%d,%d)\n",dbox.x,dbox.y,dbox.width,dbox.height);
 }
-
-
