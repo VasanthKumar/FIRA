@@ -60,20 +60,21 @@ void ball::findPosition(int flag=0)
 	
 	if(counter==1)
 	{
-	   bounding_box.x = boundrect[posarea].x - boundrect[posarea].width/2;
-	   bounding_box.y = boundrect[posarea].y - boundrect[posarea].height/2;
+	  // bounding_box.x = boundrect[posarea].x - boundrect[posarea].width/2;
+	   //bounding_box.y = boundrect[posarea].y - boundrect[posarea].height/2;
 	   bounding_box.width = boundrect[posarea].width*2;
 	   bounding_box.height = boundrect[posarea].height*2;
 	   
 	   prev_center = center;
-	   center.x = bounding_box.x + boundrect[posarea].width;
-	   center.y = bounding_box.y + boundrect[posarea].height; 
+	   center.x =  boundrect[posarea].x + boundrect[posarea].width/2;
+	   center.y =  boundrect[posarea].y + boundrect[posarea].height/2; 
 	   calculate_velocity();
 	   
-	   bounding_box.x = bounding_box.x + velocity.x;
-	   bounding_box.y = bounding_box.y + velocity.y;
-	   bounding_box.width+= fabs(velocity.x);
-	   bounding_box.height+= fabs(velocity.y);
+	   bounding_box.x = boundrect[posarea].x - boundrect[posarea].width/2 + velocity.x;
+	   bounding_box.y = boundrect[posarea].y - boundrect[posarea].height/2 + velocity.y;
+	  
+	   //bounding_box.width+= fabs(velocity.x);
+	   //bounding_box.height+= fabs(velocity.y);
 	   
 	   if(bounding_box.x<0)
 	   {
