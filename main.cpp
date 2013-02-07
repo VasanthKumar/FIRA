@@ -13,7 +13,8 @@ main(int argc,char** argv)
 		printf("\nCamera is not initialised properly, Aborting...\n");
 	}
 	
-	Mat src_image = Mat::zeros(cap.get(3),cap.get(4),CV_8U);
+	Mat src_image = Mat::zeros(cap.get(4),cap.get(3),CV_8U);
+
 	Mat dst = Mat::zeros(800,600,CV_8UC3);
 	Mat warp = Mat::zeros(640,480,CV_8UC3);
 	Point2f* pts;
@@ -46,7 +47,7 @@ main(int argc,char** argv)
 		break;
 		
 	}
-	delete pts;
+	//delete pts;
 	destroyAllWindows();
 	cap.release();
 }	

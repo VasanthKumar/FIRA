@@ -154,7 +154,7 @@ Point2f* selectPoint(Mat src)
     if( src.empty() )
     {
        printf("Image empty\n");
-        return &Point2f();
+        return NULL;
     }
     
     src.copyTo(imageC);
@@ -191,7 +191,7 @@ Point2f* selectPoint(Mat src)
     	imshow("SelectPoints",imageC);
     	
     	if(waitKey(15)==27)
-    	return &Point2f();
+    	return NULL;
     	
     	
     	//src.copyTo(imageC);

@@ -1,25 +1,26 @@
 #include "ball.h"
+#include "main.h"
 
- vector<vector<Point> > contours;
- vector<Vec4i> hierarchy;
- 
+vector<vector<Point> > contours;
+vector<Vec4i> hierarchy;
+
 Mat ball::getMask(Mat src,int hue_lower,int hue_upper)
 {
-	printf("\nEntering getMask\n");
-	
-	Mat temp_image = Mat::zeros(src.cols,src.rows,CV_8UC3);
-	Mat temp_image_gray = Mat::zeros(src.cols,src.rows,CV_8UC1);
-	printf("\n%d %d\n",src.depth(),src.type());
-	Mat element = getStructuringElement(MORPH_RECT,Size( 2*1 + 1, 2*1+1 ),Point( -1,-1) );
-	
-	cvtColor(src,temp_image,CV_BGR2HSV);
-	
-	inRange(temp_image,Scalar(hue_lower,30,0),Scalar(hue_upper,255,255),temp_image_gray);
-	
-	//morphologyEx(temp_image_gray,temp_image_gray,2,element);
+    printf("\nEntering getMask\n");
 
-	printf("\nLeaving getMask\n");
-	return temp_image_gray;
+    Mat temp_image = Mat::zeros(src.cols,src.rows,CV_8UC3);
+    Mat temp_image_gray = Mat::zeros(src.cols,src.rows,CV_8UC1);
+    printf("\n%d %d\n",src.depth(),src.type());
+    Mat element = getStructuringElement(MORPH_RECT,Size( 2*1 + 1, 2*1+1 ),Point( -1,-1) );
+
+    cvtColor(src,temp_image,CV_BGR2HSV);
+
+    inRange(temp_image,Scalar(hue_lower,30,0),Scalar(hue_upper,255,255),temp_image_gray);
+
+    //morphologyEx(temp_image_gray,temp_image_gray,2,element);
+
+    printf("\nLeaving getMask\n");
+    return temp_image_gray;
 }
 
 void ball::findPosition(int flag=0)
@@ -122,44 +123,44 @@ void ball::findPosition(int flag=0)
 }
 void ball::calculate_velocity()
 {
-	velocity.x = center.x - prev_center.x;
-	velocity.y = center.y - prev_center.y;
+    velocity.x = center.x - prev_center.x;
+    velocity.y = center.y - prev_center.y;
 }
 
 ball::ball()
 {
-	main_image = Mat(Width,Height,CV_8U);
-	
-	center = Point2f(0.0,0.0);
-	prev_center = Point2f(0.0,0.0);
-	calculate_velocity();
-	bounding_box = Rect(0,0,Width,Height);
-	
+    main_image = Mat(Width,Height,CV_8U);
+
+    center = Point2f(0.0,0.0);
+    prev_center = Point2f(0.0,0.0);
+    calculate_velocity();
+    bounding_box = Rect(0,0,Width,Height);
+
 }
 
 void ball::init(Mat src)
 {
-	printf("\nEntering init\n");
-	src.copyTo(main_image);
-	
-	mask= getMask(main_image,5,10);
-	//waitKey(0);
-	
-	//mask = temp(bounding_box);
-	
-	findPosition();
-	printf("\nLeaving init\n");
+    printf("\nEntering init\n");
+    src.copyTo(main_image);
+
+    mask= getMask(main_image,5,10);
+    //waitKey(0);
+
+    //mask = temp(bounding_box);
+
+    findPosition();
+    printf("\nLeaving init\n");
 }
 
 void ball::display_ball_prop()
 {
-	printf("\nCenter:(%f,%f)\t",center.x,center.y);
-	printf("\nPrevCentre:(%f,%f)\n",prev_center.x,prev_center.y);
-	printf("\nVelocity:(%f,%f)\n",velocity.x,velocity.y);
-	printf("\nBBOX:(%d,%d,%d,%d)\n",bounding_box.x,bounding_box.y,bounding_box.width,bounding_box.height);
-	
+    printf("\nCenter:(%f,%f)\t",center.x,center.y);
+    printf("\nPrevCentre:(%f,%f)\n",prev_center.x,prev_center.y);
+    printf("\nVelocity:(%f,%f)\n",velocity.x,velocity.y);
+    printf("\nBBOX:(%d,%d,%d,%d)\n",bounding_box.x,bounding_box.y,bounding_box.width,bounding_box.height);
+
 }
 void ball::update()
 {
-	
+
 }
