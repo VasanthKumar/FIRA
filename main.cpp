@@ -24,18 +24,19 @@ main(int argc,char** argv)
 		
 		cap>>src_image;
 		resize(src_image,dst,Size(800,600));
-		if(f==0)
-		{
-			pts = selectPoint(dst);		
-			
-			f=1;
-		}
-		else if(f==1)
+		 if(f==1)
 		{
 			warp = perspectiveArena(dst,pts);
 			imshow("warp",warp);
 			oball.init(warp);
 		}
+		else if(f==0)
+		{
+			pts = selectPoint(dst);		
+			
+			f=1;
+		}
+		
 		//warp.convertTo(warp,CV_8UC3,255);
 		imshow("src",dst);
 		
