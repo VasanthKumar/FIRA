@@ -1,4 +1,4 @@
-#include "main.h"
+#include "common.h"
 
 extern vector<vector<Point> > contours;
 extern vector<Vec4i> hierarchy;
@@ -7,6 +7,7 @@ struct ball{
 	
 	Mat main_image;
 	Mat mask;
+	Mat tmp;
 	
 	Point2f center;
 	Point2f prev_center;
