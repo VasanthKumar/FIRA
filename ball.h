@@ -18,7 +18,7 @@ struct ball{
 	
 	void init(Mat src);
 	Mat getMask(Mat src, int hue_lower, int hue_upper);	
-	void findPosition(int flag=0);
+	void findPosition(int flag);
 	void calculate_velocity();
 	void display_ball_prop();
 	void update();
