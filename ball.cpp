@@ -5,7 +5,7 @@ vector<Vec4i> hierarchy;
 
 Mat ball::getMask(Mat src,int hue_lower,int hue_upper)
 {
-    //printf("\nstart of getMask\n");
+    //printf("\nentering getMask\n");
     double time_for_mask = (double)cvGetTickCount();
 
     Mat temp_image = Mat::zeros(src.cols,src.rows,CV_8UC3);
