@@ -18,18 +18,18 @@ opp_bot o_bot[5];
 opp_bot::opp_bot(){
     OBJECT_NUM = total_no_of_objects++;
     color = OPP_JERSEY_COLOR;
-    center = cvPoint( 0, 0 );
-    location = cvRect( 0, 0, 0, 0 );
-    img = cvQueryFrame(capture);
+    center = Point( 0, 0 );
+    location = Rect( 0, 0, 0, 0 );
+    capture >> img;
    // cvShowImage("test",img);
-    mask = cvCreateImage( cvSize(640,480), IPL_DEPTH_8U, 1 );
+    mask = Mat( Size(640,480), CV_8UC1 );
 }
 
 
-void opp_bot::FindCenter( CvPoint &cen ){	
+void opp_bot::FindCenter( Point &cen ){	
     vector <int> area;
-    vector <CvPoint> vector_cen = FindAllCenter( mask, area );
-    cen = cvPoint ( 0, 0 );
+    vector <Point> vector_cen = FindAllCenter( mask, area );
+    cen = Point ( 0, 0 );
     int count = 0;
 
     for( int i = 0 ; i < vector_cen.size() ; i++ ){
@@ -49,15 +49,17 @@ void opp_bot::FindCenter( CvPoint &cen ){
 
 
 void opp_bot::update(){
-    CvPoint cen;
-
-    cvSetImageROI( mask, location );
-    pick_basecolor( mask, location, color );
+    Point cen;
+	Mat mask_roi=mask(location);
+//    cvSetImageROI( mask, location );
+    
+    pick_basecolor( mask_roi, location, color );
     FindCenter( cen );
-    cvResetImageROI( mask );
+//    cvResetImageROI( mask );
+	mask_roi.release();
 
     if( cen.x != 0 ){
-        cen = cvPoint( cen.x + location.x, cen.y + location.y );
+        cen = Point( cen.x + location.x, cen.y + location.y );
         center = cen;
         update_location( location, center );
     }

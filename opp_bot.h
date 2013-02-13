@@ -3,12 +3,12 @@
 class opp_bot{
     public:
         static int total_no_of_objects;
-        IplImage *mask;
-        CvRect location;
-        CvPoint center;
+        mat mask;
+        Rect location;
+        Point center;
         char color;
         void update();
-        void FindCenter(CvPoint &cen);
+        void FindCenter(Point &cen);
         opp_bot();
         int OBJECT_NUM;
 };
