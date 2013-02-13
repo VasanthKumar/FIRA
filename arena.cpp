@@ -202,10 +202,9 @@ Point2f* selectPoint(Mat src)
 
 }
 
-Mat perspectiveArena(Mat src, Point2f* srcq )
+Mat getTransformMat(Point2f* srcq )
 {
 	Point2f srcQuad[4],dstQuad[4];
-	Mat warped;
 	Mat warp_perspective;
 	
 	srcQuad[0] = srcq[0];
@@ -219,10 +218,16 @@ Mat perspectiveArena(Mat src, Point2f* srcq )
 	dstQuad[3] = Point2f(192.0/5.0,480.0);
 	
 	warp_perspective= getPerspectiveTransform(srcQuad,dstQuad);
-	warpPerspective(src, warped, warp_perspective, Size(640,480));
+	//warpPerspective(src, warped, warp_perspective, Size(640,480));
 	
+	return warp_perspective;
+	
+}
+Mat perspectiveArena(Mat warp_Mat, Mat src )
+{
+	Mat warped;
+	warpPerspective(src, warped, warp_Mat, Size(640,480));	
 	return warped;
-	
 }
 
 
