@@ -3,18 +3,20 @@
 #include<highgui.h>
 #include<math.h>
 
+using namespace cv;
+using namespace std;
 
 void threshold( IplImage* src, IplImage* dst ){
     cvDilate( src, dst, NULL, 1 );
     cvSmooth( dst, dst, CV_MEDIAN, 3, 0, 0, 0 );
 }
 
-inline double distanc( CvPoint pt1, CvPoint pt2 ){
+inline double distanc( Point pt1, Point pt2 ){
     return ( sqrt( ( pt1.x - pt2.x ) * ( pt1.x - pt2.x ) + ( pt1.y - pt2.y ) * ( pt1.y - pt2.y ) ) );
 }
 
 
-int angl( CvPoint dst, CvPoint cen, CvPoint front ){
+int angl( Point dst, Point cen, Point front ){
 
     float a = ( float )( ( dst.x - cen.x ) * ( front.y - cen.y ) - ( front.x - cen.x ) * ( dst.y - cen.y ) );	//angle through cross product.
     float b = ( float )( distanc( cen, dst ) * distanc( cen, front ) );

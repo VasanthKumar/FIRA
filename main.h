@@ -4,8 +4,9 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <stdio.h>
 
-
 #define Width 640
 #define Height 480
 #define Depth CV_8UC3
 using namespace cv;
+
+extern Mat dst;

@@ -1,9 +1,13 @@
 #include <cv.h>
+#include <highgui.h>
+
+using namespace cv;
+using namespace std;
 
 class opp_bot{
     public:
         static int total_no_of_objects;
-        mat mask;
+        Mat mask;
         Rect location;
         Point center;
         char color;

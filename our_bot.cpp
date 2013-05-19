@@ -4,26 +4,84 @@
 #include <vector>
 
 #include "global_var.h"
-#include "process_image.h"
 #include "colors.h"
 #include "contours.h"
 #include "our_bot.h"
 #include "update_frame.h"
+#include "main.h"
 
 using namespace cv;
 using namespace std;
 
-our_bot bot[5];
+extern Point arena_center;
+
+void limit_location_within_arena( Rect &location ){	
+
+    if( location.x < 0 )
+        location.x = 0;
+
+    if( location.y < 0)
+        location.y = 0;
+
+    if( location.width + location.x > 640 )
+        location.width = 640 - location.x;
+
+    if( location.height + location.y > 480 )
+        location.height = 480 - location.y;
+}
+
+void update_location( Rect &location, Point center ){
+    cout<<"center = "<<center.x<<' '<<center.y<<endl;
+    location = Rect( center.x - BOUND_RECT, center.y - BOUND_RECT, 2 * BOUND_RECT, 2 * BOUND_RECT );
+}
+
+void expand_location( Rect &location ){
+    location = Rect( location.x - BOUND_RECT, location.y - BOUND_RECT, location.width + 2 * BOUND_RECT, location.height + 2 * BOUND_RECT );
+}
+
+inline double distanc( Point pt1, Point pt2 ){
+    return ( sqrt( ( pt1.x - pt2.x ) * ( pt1.x - pt2.x ) + ( pt1.y - pt2.y ) * ( pt1.y - pt2.y ) ) );
+}
+
+int angl( Point2f dst, Point2f cen, Point2f front ){
+
+    float a = ( float )( ( dst.x - cen.x ) * ( front.y - cen.y ) - ( front.x - cen.x ) * ( dst.y - cen.y ) );	//angle through cross product.
+    float b = ( float )( distanc( cen, dst ) * distanc( cen, front ) );
+    float result = 0;
+    float angle = 1000;
+
+    if( b != 0 ){
+        result = asin( a / b );
+
+        if(distanc( cen, dst ) > distanc( front, dst ) ){
+            angle = ( ( result * 90 / 1.57 ) );
+        }
+        else if( result > 0 ){
+            angle= ( ( 180 - result * 90 / 1.57 ) );
+        }
+        else if( result < 0 ){
+            angle = ( -180 - result * 90 / 1.57 );
+        }
+    }
+    if( angle == 1000 ){
+        if( front.y > cen.y )
+            angle = 180;
+        else if( cen.y > front.y )
+            angle = 0;
+        else
+            printf( " < " );
+    }
+    return angle;
+}
 
 our_bot::our_bot(){
     x = 0, y = 0, angle = 0;
     mask = new Mat[3];
     location = Rect(arena_center.x - BOUND_RECT, arena_center.y - BOUND_RECT,
             2* BOUND_RECT, 2 * BOUND_RECT);
-    mask[0] = Mat( Size(640,480), CV8UC1 );
-    mask[1] = Mat( Size(640,480), CV8UC1 );
-    mask[2] = Mat( Size(640,480), CV8UC1 );
-
+    mask[0] = Mat( Size(640,480), CV_8UC1 );
+    mask[1] = Mat( Size(640,480), CV_8UC1 );
+    mask[2] = Mat( Size(640,480), CV_8UC1 );
 }	
 
 our_bot::~our_bot(){
@@ -33,6 +91,7 @@ our_bot::~our_bot(){
     delete mask;
 }
 
+Rect goal_rect = Rect(0,480*65/180,640,480*50/180);
 
 double our_bot::pos(){
     Point center;
@@ -64,66 +123,58 @@ void our_bot::FindCenter(){
     vector <int> Area_base;
     int Area_frontl=0;
     int Area_frontr=0;	
-    vector <Point> BaseCenter = FindAllCenter( mask[0], Area_base );
+    vector <RotatedRect> BaseCenter = all_contours( mask[0], Area_base,0 );
 
     Point frontl_center = Point( 0, 0 );
     Point frontr_center = Point( 0, 0 );
-    Point c1 = Point( 0 ,0 );
-    Point c2 = Point( 0 ,0 );
+    RotatedRect c1;
+
+    RotatedRect c2;
     back_center = Point( 0, 0 );
 
     for( int i = 0; i < BaseCenter.size(); i++ ){
 
-	printf(" Area of base %d ",Area_base[i]);        //FOR Debugging AREA threshold
+        if(Area_base[i] > BASE_AREA_THRESH) {
+            c1 = closest_contour( mask[1], BaseCenter[i].center, Area_frontl );
+            c2 = closest_contour( mask[2], BaseCenter[i].center, Area_frontr );
 
-	if(Area_base[i] > BASE_AREA_THRESH) {
-        c1 = ClosestFrontCenter( mask[1], BaseCenter[i], Area_frontl );
-	c2 = ClosestFrontCenter( mask[2], BaseCenter[i], Area_frontr );
-      
-	if( c1.x != 0 && c2.x !=0 ){
 
-			if(angl(c1,BaseCenter[i],c2) > 0)
-			{back_center = BaseCenter[i];
-			frontl_center = c1;
-			frontr_center = c2;
+            if( c1.center.x != 0 && c2.center.x !=0 ){
 
-			break;
-			}	
-      
-      }
+                if(angl( c1.center,BaseCenter[i].center,c2.center) >= 0 &&
+                        distanc(c1.center,BaseCenter[i].center) < BOT_LENGTH && 
+                        distanc(c2.center,BaseCenter[i].center) < BOT_LENGTH )
+                {
+                    back_center = BaseCenter[i].center;
+                    frontl_center = c1.center;
+                    frontr_center = c2.center;
+
+                    break;
+                }	
+
+            }
+        }
     }
-}
- front_center = Point( ( frontl_center.x + frontr_center.x ) / 2, ( frontl_center.y + frontr_center.y ) / 2 );
+    front_center = Point( ( frontl_center.x + frontr_center.x ) / 2, ( frontl_center.y + frontr_center.y ) / 2 );
 
 }
-
 
 void our_bot::update(){
-    //Setting the tracking box as the region of interest.
-    mask_roi0=mask[0](location);
-    mask_roi1=mask[1](location);
-    mask_roi2=mask[2](location);
-//    cvSetImageROI( mask[0], location );
-//    cvSetImageROI( mask[1], location );
-//    cvSetImageROI( mask[2], location );
+    Mat gray_mask[3];
 
-    pick_basecolor( mask_roi0, location, basecolor );
-    pick_frontcolor( mask_roi1, location, lcolor );
-    pick_frontcolor( mask_roi2, location, rcolor );
+    gray_mask[0] = dst(location);
+    gray_mask[1] = dst(location);
+    gray_mask[2] = dst(location);
 
-    //The cvShowImage lines are for debuging.
-    //cvShowImage( "back_center", mask[0] );
-    //cvShowImage( "front_center_left", mask[1] );
-    //cvShowImage( "front_center_right", mask[2]);
+    mask[0] = Mat::zeros(gray_mask[0].rows,gray_mask[0].cols,CV_8UC1);
+    mask[1] = Mat::zeros(gray_mask[1].rows,gray_mask[1].cols,CV_8UC1);
+    mask[2] = Mat::zeros(gray_mask[2].rows,gray_mask[2].cols,CV_8UC1);
+
+    pick_color( gray_mask[0],mask[0], basecolor );
+    pick_color( gray_mask[1],mask[1], lcolor );
+    pick_color( gray_mask[2],mask[2], rcolor );
 
     FindCenter();
-
-//    cvResetImageROI( mask[0] );
-//    cvResetImageROI( mask[1] );
-//    cvResetImageROI( mask[2] );
-	  mask_roi0.release();
-	  mask_roi1.release();
-	  mask_roi2.release();
 
     if( front_center.x != 0 && back_center.x != 0 ){
         //Taking care for the relative position changes due to ROI.
@@ -131,12 +182,16 @@ void our_bot::update(){
         back_center = Point( back_center.x + location.x, back_center.y + location.y );
         bot_center = Point( ( front_center.x + back_center.x ) / 2, ( front_center.y + back_center.y ) / 2 );
         update_location( location, bot_center );
+        cout<<"bot found!!"<<endl;
     }
     else{
         expand_location( location );
     }
 
     limit_location_within_arena( location );
+
+    cout<<"location = "<<location.x<<' '<<location.y
+        <<' '<<location.width<<' '<<location.height<<endl;
     pos();
     orientation();
 }

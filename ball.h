@@ -1,10 +1,13 @@
-#include "common.h"
+#include <cv.h>
+#include <highgui.h>
+
+using namespace cv;
+using namespace std;
 
 extern vector<vector<Point> > contours;
 extern vector<Vec4i> hierarchy;
 
 struct ball{
-	
 	Mat main_image;
 	Mat mask;
 	Mat tmp;

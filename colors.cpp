@@ -11,7 +11,7 @@ inline bool check_orange( int hue, int sat, int value )
 
 inline bool check_yellow( int hue, int sat, int value )
 {
-    if((hue>40&&hue<65)&&(sat>50&&sat<=230)&&(value>50&&value<=230))
+    if((hue>25&&hue<35)&&(sat>90&&sat<=255)&&(value>90&&value<=255))
         return true;
     else
         return false;
@@ -75,14 +75,12 @@ void pick_color( Mat &image, Mat &mask, char color ){
             }
             break;
 
-
-
         case 'v' :
             mask = Scalar(0);
 
             for( y = 0; y < image.rows; y++ ){
                 for( x = 0; x < image.cols; x++ ){
-                    if(check_green(image.at<Vec3b>(y,x)[0],image.at<Vec3b>(y,x)[1],
+                    if(check_violet(image.at<Vec3b>(y,x)[0],image.at<Vec3b>(y,x)[1],
                                 image.at<Vec3b>(y,x)[2]) )
                         mask.at<uchar>(y,x) = 255;
                 }
@@ -94,7 +92,7 @@ void pick_color( Mat &image, Mat &mask, char color ){
 
             for( y = 0; y < image.rows; y++ ){
                 for( x = 0; x < image.cols; x++ ){
-                    if(check_green(image.at<Vec3b>(y,x)[0],image.at<Vec3b>(y,x)[1],
+                    if(check_jersey(image.at<Vec3b>(y,x)[0],image.at<Vec3b>(y,x)[1],
                                 image.at<Vec3b>(y,x)[2]) )
                         mask.at<uchar>(y,x) = 255;
                 }
@@ -107,7 +105,7 @@ void pick_color( Mat &image, Mat &mask, char color ){
 
             for( y = 0; y < image.rows; y++ ){
                 for( x = 0; x < image.cols; x++ ){
-                    if(check_green(image.at<Vec3b>(y,x)[0],image.at<Vec3b>(y,x)[1],
+                    if(check_orange(image.at<Vec3b>(y,x)[0],image.at<Vec3b>(y,x)[1],
                                 image.at<Vec3b>(y,x)[2]) )
                         mask.at<uchar>(y,x) = 255;
                 }
@@ -119,7 +117,7 @@ void pick_color( Mat &image, Mat &mask, char color ){
 
             for( y = 0; y < image.rows; y++ ){
                 for( x = 0; x < image.cols; x++ ){
-                    if(check_green(image.at<Vec3b>(y,x)[0],image.at<Vec3b>(y,x)[1],
+                    if(check_opp_jersey(image.at<Vec3b>(y,x)[0],image.at<Vec3b>(y,x)[1],
                                 image.at<Vec3b>(y,x)[2]) )
                         mask.at<uchar>(y,x) = 255;
                 }

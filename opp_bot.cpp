@@ -2,11 +2,11 @@
 #include <cv.h>
 #include <highgui.h>
 
+#include "global_var.h"
 #include "opp_bot.h"
 #include "update_frame.h"
 #include "colors.h"
 #include "contours.h"
-#include "global_var.h"
 
 using namespace  cv;
 using namespace std;

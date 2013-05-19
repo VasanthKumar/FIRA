@@ -1,4 +1,10 @@
-#include "common.h"
+#pragma once
+#include <cv.h>
+#include <highgui.h>
+#include <iostream>
+
+using namespace cv;
+using namespace std;
 
 void draw_box( Mat img, Rect rect );
 void draw_circle( Mat img, Point2f center, int radius );

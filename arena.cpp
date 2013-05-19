@@ -1,9 +1,8 @@
 #include "arena.h"
-
-
 Mat imageR;
 Mat imageC;
-int flag = 0,count=0,flagc=0;
+int flag = 0,flagc=0;
+int cnt = 0;
 bool drawing_box = false;
 bool sel = false;
 Rect box;
@@ -138,7 +137,7 @@ static void onMouseSelect( int event, int x, int y, int, void* )
 				sel = false;
 				point = Point2f((float)x,(float)y);
 				draw_circle(imageC,point,10);
-				count++;
+				cnt++;
 				flagc=1;
 				break;
 			}
@@ -154,16 +153,16 @@ Point2f* selectPoint(Mat src)
     if( src.empty() )
     {
        printf("Image empty\n");
-        return &Point2f();
+        return NULL;
     }
     
     src.copyTo(imageC);
 
     namedWindow( "SelectPoints", 1 );
-    count = 0;
+    cnt = 0;
     setMouseCallback( "SelectPoints", onMouseSelect, 0 );
     
-    while(count<5)
+    while(cnt<5)
     {	
   
     	if(flagc==1)
@@ -173,25 +172,26 @@ Point2f* selectPoint(Mat src)
     		c = waitKey(0);
     		if(c=='c')
     		{
-    			points[count-1] = point; 
-    			printf("\nCount:%d\n",count);
-    			if(count == 4)
+    			points[cnt-1] = point; 
+    			printf("\ncnt:%d\n",cnt);
+    			if(cnt == 4)
     			break;
     		}
     		else
     		{
-    			count--;
-    			printf("\nCount:%d",count);
+    			cnt--;
+    			printf("\ncnt:%d",cnt);
     			src.copyTo(imageC);
     			
     		}
     		flagc = 0;
+            cout<<"point selection done"<<endl;
     	}
     	
     	imshow("SelectPoints",imageC);
     	
     	if(waitKey(15)==27)
-    	return &Point2f();
+    	    return NULL;
     	
     	
     	//src.copyTo(imageC);
@@ -211,7 +211,7 @@ Mat getTransformMat(Point2f* srcq )
 	srcQuad[1] = srcq[1];
 	srcQuad[2] = srcq[2];
 	srcQuad[3] = srcq[3];
-	
+
 	dstQuad[0] = Point2f(192.0/5.0,0.0);
 	dstQuad[1] = Point2f(3008.0/5.0,0.0);
 	dstQuad[2] = Point2f(3008.0/5.0,480.0);
@@ -219,7 +219,7 @@ Mat getTransformMat(Point2f* srcq )
 	
 	warp_perspective= getPerspectiveTransform(srcQuad,dstQuad);
 	//warpPerspective(src, warped, warp_perspective, Size(640,480));
-	
+
 	return warp_perspective;
 	
 }

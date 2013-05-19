@@ -1,4 +1,10 @@
 #include <boost/thread.hpp> 
+#include <cv.h>
+#include <highgui.h>
+
+using namespace cv;
+using namespace std;
+
 class our_bot{
 
     public:
@@ -17,6 +23,3 @@ class our_bot{
         void update();
         ~our_bot();
 };
-
-extern our_bot bot[5];
-

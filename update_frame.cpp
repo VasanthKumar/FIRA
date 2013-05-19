@@ -10,21 +10,20 @@
 #include "opp_bot.h"
 #include "global_var.h"
 #include "ball.h"
-#include "visualization.h"
 
 using namespace cv;
 using namespace std;
 
 
-void update_location( CvRect &location, CvPoint center ){
+void update_location( Rect &location, Point center ){
     location = Rect( center.x - BOUND_RECT, center.y - BOUND_RECT, 2 * BOUND_RECT, 2 * BOUND_RECT );
 }
 
-void expand_location( CvRect &location ){
+void expand_location( Rect &location ){
     location = Rect( location.x - BOUND_RECT, location.y - BOUND_RECT, location.width + 2 * BOUND_RECT, location.height + 2 * BOUND_RECT );
 }
 
-void limit_location_within_arena( CvRect &location ){	
+void limit_location_within_arena( Rect &location ){	
 
     if( location.x < goal_rect.x )
         location.x = goal_rect.x;

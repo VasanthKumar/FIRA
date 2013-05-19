@@ -1,5 +1,9 @@
 #include "ball.h"
 
+#define WIDTH 640
+#define HEIGHT 480
+#define DEPTH 3
+
 vector<vector<Point> > contours;
 vector<Vec4i> hierarchy;
 
@@ -20,6 +24,7 @@ Mat ball::getMask(Mat src,int hue_lower,int hue_upper)
     //printf("\nTime for getting mask : %lf\n",(double)time_for_mask);
     //morphologyEx(temp_image_gray,temp_image_gray,MORPH_CLOSE,element);
 
+    imshow("temp gray",temp_image_gray);
     //printf("\nLeaving getMask\n");
     return temp_image_gray;
 }
@@ -34,7 +39,7 @@ void ball::findPosition(int flag=0)
 
     mask.copyTo(temp);
 
-    imshow("temp",temp);
+    //imshow("temp",temp);
 
     findContours(temp,contours,hierarchy,CV_RETR_CCOMP,CV_CHAIN_APPROX_NONE,Point2f(bounding_box.x,bounding_box.y));
 
@@ -42,10 +47,11 @@ void ball::findPosition(int flag=0)
     vector<Rect>boundrect(contours.size());
     double maxarea=0;
 
+
     while(i<contours.size())
     {
 
-        if(contourArea(contours[i])>50&&contourArea(contours[i])<600&&hierarchy[i][3]<0) //constraints on size
+        if(contourArea(contours[i])>10&&contourArea(contours[i])<600&&hierarchy[i][3]<0) //constraints on size
         {
             boundrect[i] = boundingRect(contours[i]);
             rectangle(display,boundrect[i].tl(),boundrect[i].br(),Scalar(255,0,0));
@@ -61,9 +67,9 @@ void ball::findPosition(int flag=0)
         i++;
     }
 
-    if(counter==1)
+cout<<"counter = "<<counter<<endl;
+    if(counter)
     {
-
 
         bounding_box.width = boundrect[posarea].width*2;
         bounding_box.height = boundrect[posarea].height*2;
@@ -146,6 +152,7 @@ void ball::init(Mat src)
 {
     //printf("\nEntering init\n");
     //src.copyTo(main_image);
+
     tmp = src(bounding_box);
     mask= getMask(tmp,4,15);
     //waitKey(0);

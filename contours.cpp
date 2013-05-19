@@ -61,7 +61,7 @@ RotatedRect largest_contour(Mat image,int &counter)
 
 RotatedRect closest_contour(Mat image,Point closest_to,int flag=0)
 {
-    vector<vector<Point> > contours;
+    vector< vector<Point> > contours;
 
     vector<Vec4i> hierarchy;
 
@@ -97,6 +97,7 @@ RotatedRect closest_contour(Mat image,Point closest_to,int flag=0)
                 closest_bounding_rect = bounding_rect;
                 min_distance = dis;
                 closest_index = i;
+                counter++;
             }
         }	
         i++;
@@ -111,7 +112,7 @@ RotatedRect closest_contour(Mat image,Point closest_to,int flag=0)
 }
 
 
-vector <RotatedRect> all_contours(Mat image, int flag=0)
+vector <RotatedRect> all_contours(Mat image,vector <int> &Area, int flag=0)
 {
     vector<vector<Point> > contours;
 
@@ -136,29 +137,21 @@ vector <RotatedRect> all_contours(Mat image, int flag=0)
     int i=0,counter=0,pos=-1,posarea=-1;
     double maxarea=0;
 
-    while(i<contours.size())
-    {
-
-        if(contourArea(contours[i])>50&&contourArea(contours[i])<600) //constraints on size
-        {
-            //rectangle(display,boundrect[i].tl(),boundrect[i].br(),Scalar(255,0,0));
-            counter++;
-            pos = i;
-            if(contourArea(contours[i])>maxarea)
-            {
-                maxarea = contourArea(contours[i]);
-                posarea = i;
-
-            }
-        }	
-        i++;
-
-    }
+//    while(i<contours.size())
+//    {
+//        if(contourArea(contours[i])>50&&contourArea(contours[i])<600) //constraints on size
+//        {
+//            counter++;
+//        }	
+//        i++;
+//    }
 
     vector <RotatedRect> bounding_rect;
-    while( counter ){
-        bounding_rect.push_back( minAreaRect( contours[counter - 1] ) );
-        counter--;
+    while( i<contours.size() ){
+        bounding_rect.push_back( minAreaRect( contours[i] ) );
+        Area.push_back(contourArea(contours[i]));
+        i++;
     }
+	    
     return bounding_rect;
 }

@@ -11,4 +11,4 @@ RotatedRect largest_contour(Mat image,int &counter);
 
 RotatedRect closest_contour(Mat image,Point closest_to,int flag);
 
-vector <RotatedRect> all_contours(Mat image,int flag);
+vector <RotatedRect> all_contours(Mat image,vector <int> &,int flag);
