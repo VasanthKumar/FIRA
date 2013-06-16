@@ -154,7 +154,7 @@ void ball::init(Mat src)
     //src.copyTo(main_image);
 
     tmp = src(bounding_box);
-    mask= getMask(tmp,4,15);
+    mask= getMask(tmp,4,13);
     //waitKey(0);
 
     //mask = temp(bounding_box);

@@ -141,7 +141,7 @@ void our_bot::FindCenter(){
 
             if( c1.center.x != 0 && c2.center.x !=0 ){
 
-                if(angl( c1.center,BaseCenter[i].center,c2.center) >= 0 &&
+                if(angl( c1.center,BaseCenter[i].center,c2.center) > 25 &&
                         distanc(c1.center,BaseCenter[i].center) < BOT_LENGTH && 
                         distanc(c2.center,BaseCenter[i].center) < BOT_LENGTH )
                 {

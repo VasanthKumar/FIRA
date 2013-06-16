@@ -20,7 +20,7 @@ inline bool check_yellow( int hue, int sat, int value )
 
 inline bool check_blue( int hue, int sat, int value )
 {
-    if((hue>40&&hue<65)&&(sat>50&&sat<=230)&&(value>50&&value<=230))
+    if((hue>75&&hue<90)&&(sat>50&&sat<=250)&&(value>50&&value<=250))
         return true;
     else
         return false;
@@ -29,7 +29,7 @@ inline bool check_blue( int hue, int sat, int value )
 
 inline bool check_green( int hue, int sat, int value )
 {
-    if((hue>40&&hue<65)&&(sat>220&&sat<=255)&&(value>220&&value<=255))
+    if((hue>55&&hue<70)&&(sat>50&&sat<=250)&&(value>50&&value<=250))
         return true;
     else
         return false;
@@ -37,7 +37,7 @@ inline bool check_green( int hue, int sat, int value )
 
 inline bool check_violet( int hue, int sat, int value )
 {
-    if((hue>40&&hue<65)&&(sat>50&&sat<=230)&&(value>50&&value<=230))
+    if((hue>40&&hue<65)&&(sat>50&&sat<=250)&&(value>50&&value<=250))
         return true;
     else
         return false;
