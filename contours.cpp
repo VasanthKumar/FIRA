@@ -88,7 +88,7 @@ RotatedRect closest_contour(Mat image,Point closest_to,int flag=0)
     while(i<contours.size())
     {
         //size constraints should come here...
-        if(contourArea(contours[i])>50&&contourArea(contours[i])<600)
+        if(contourArea(contours[i])>20&&contourArea(contours[i])<300)
         {
             bounding_rect = minAreaRect( contours[i] );
             dis = distance(bounding_rect.center,closest_to);

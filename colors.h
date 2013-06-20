@@ -3,6 +3,7 @@
 #include <highgui.h>
 #include <stdio.h>
 #include <vector>
+#include "common.h"
 #define OUR_JERSEY_COLOR 'b'
 #define OPP_JERSEY_COLOR 'y'
 

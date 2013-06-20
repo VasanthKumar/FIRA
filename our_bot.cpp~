@@ -31,7 +31,7 @@ void limit_location_within_arena( Rect &location ){
 }
 
 void update_location( Rect &location, Point center ){
-//    cout<<"center = "<<center.x<<' '<<center.y<<endl;
+    cout<<"center = "<<center.x<<' '<<center.y<<endl;
     location = Rect( center.x - BOUND_RECT, center.y - BOUND_RECT, 2 * BOUND_RECT, 2 * BOUND_RECT );
 }
 
@@ -141,7 +141,7 @@ void our_bot::FindCenter(){
 
             if( c1.center.x != 0 && c2.center.x !=0 ){
 
-                if(angl( c1.center,BaseCenter[i].center,c2.center) > 25 &&
+                if(angl( c1.center,BaseCenter[i].center,c2.center) >= 20 &&
                         distanc(c1.center,BaseCenter[i].center) < BOT_LENGTH && 
                         distanc(c2.center,BaseCenter[i].center) < BOT_LENGTH )
                 {
@@ -170,15 +170,10 @@ void our_bot::update(){
     mask[1] = Mat::zeros(gray_mask[1].rows,gray_mask[1].cols,CV_8UC1);
     mask[2] = Mat::zeros(gray_mask[2].rows,gray_mask[2].cols,CV_8UC1);
 
-//    cout<<"before pickcolor\n";
     pick_color( gray_mask[0],mask[0], basecolor );
     pick_color( gray_mask[1],mask[1], lcolor );
     pick_color( gray_mask[2],mask[2], rcolor );
-	
-//	imshow("green",mask[0]);
-//	imshow("pink",mask[1]);
-//	imshow("yellow",mask[2]);
-//	cout<<"color found\n";
+
     FindCenter();
 
     if( front_center.x != 0 && back_center.x != 0 ){
@@ -187,7 +182,7 @@ void our_bot::update(){
         back_center = Point( back_center.x + location.x, back_center.y + location.y );
         bot_center = Point( ( front_center.x + back_center.x ) / 2, ( front_center.y + back_center.y ) / 2 );
         update_location( location, bot_center );
-//        cout<<"bot found!!"<<endl;
+        cout<<"bot found!!"<<endl;
     }
     else{
         expand_location( location );
@@ -195,8 +190,8 @@ void our_bot::update(){
 
     limit_location_within_arena( location );
 
-//    cout<<"location = "<<location.x<<' '<<location.y
-//        <<' '<<location.width<<' '<<location.height<<endl;
+    cout<<"location = "<<location.x<<' '<<location.y
+        <<' '<<location.width<<' '<<location.height<<endl;
     pos();
     orientation();
 }

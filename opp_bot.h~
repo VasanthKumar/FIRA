@@ -1,0 +1,26 @@
+#include <cv.h>
+
+class opp_bot{
+    public:
+        static int total_no_of_objects;
+<<<<<<< HEAD
+        mat mask;
+        Rect location;
+        Point center;
+        char color;
+        void update();
+        void FindCenter(Point &cen);
+=======
+        IplImage *mask;
+        CvRect location;
+        CvPoint center;
+        char color;
+        void update();
+        void FindCenter(CvPoint &cen);
+>>>>>>> f61883a249a0ac22653b2f90982ea1109a191cdc
+        opp_bot();
+        int OBJECT_NUM;
+};
+
+extern opp_bot o_bot[5];
+
