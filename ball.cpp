@@ -18,13 +18,13 @@ Mat ball::getMask(Mat src,int hue_lower,int hue_upper)
 
     cvtColor(src,temp_image,CV_BGR2HSV);
 
-    inRange(temp_image,Scalar(hue_lower,30,0),Scalar(hue_upper,255,255),temp_image_gray);
+    inRange(temp_image,Scalar(hue_lower,100,100),Scalar(hue_upper,255,255),temp_image_gray);
     time_for_mask = ((double)cvGetTickCount() - time_for_mask)/(1000.0*(double)cvGetTickFrequency());
 
     //printf("\nTime for getting mask : %lf\n",(double)time_for_mask);
     //morphologyEx(temp_image_gray,temp_image_gray,MORPH_CLOSE,element);
 
-    imshow("temp gray",temp_image_gray);
+//    imshow("temp gray",temp_image_gray);
     //printf("\nLeaving getMask\n");
     return temp_image_gray;
 }
