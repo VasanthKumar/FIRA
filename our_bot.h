@@ -14,6 +14,9 @@ class our_bot{
         Mat* mask;
         Rect location;
         Point front_center, back_center, bot_center;
+		Point bot_pos;
+		float bot_angle;
+		
         double x,y,angle;
 
         our_bot(); 

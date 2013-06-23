@@ -1,13 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <netdb.h> 
-
-#define BUFFER_SIZE 18    												 // Increase this as required
+#include "wifi.h"
 
 void error(const char *msg)
 { 
@@ -68,8 +59,9 @@ int init_wifi(int bot_port,char* bot_address)
 	do	
 	{
 		tcpRead(bot_sockfd,bot_buffer);
-		printf("got: %s ",bot_buffer); 
+		printf("got: %s \n",bot_buffer); 
 	}while(bot_buffer[0]!='M');
+	printf("Bot ready\n");
 
 	return bot_sockfd;
 }
@@ -81,9 +73,8 @@ void close_socket(int bot1_sockfd)
 
 int main()
 {
-	init_wifi(9750,"192.168.0.1");
+	int socketfd = init_wifi(9750,"122.38.0.151");
+	tcpWrite(socketfd,"0Faa");
 	return 0;
 }
-
-
 

@@ -100,7 +100,10 @@ double our_bot::pos(){
 
     x = ( ( center.x - arena_center.x ) *250 ) / goal_rect.width;		//center wrt the arena center.
     y=-1*((center.y-arena_center.y)*250)/goal_rect.width;
-    printf("botx=%f boty=%f\n",x,y);
+    
+	bot_pos.x = x;
+	bot_pos.y = y;
+//	printf("botx=%f boty=%f\n",x,y);
 }
 
 double our_bot::orientation(){
@@ -113,8 +116,9 @@ double our_bot::orientation(){
         angle = 0;
     else if( angle > 0 )
         angle = 360 - angle;
-
-    printf("angle%f\n",angle);
+	
+	bot_angle = angle;
+//    printf("angle%f\n",angle);
 }
 
 

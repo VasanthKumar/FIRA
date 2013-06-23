@@ -1,3 +1,7 @@
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -15,3 +19,7 @@ int establishConnection(char* bot_address, int bot_portno);
 char* tcpRead( int socket_descriptor, char *buffer);
 int tcpWrite(int socket_descriptor,char* message);
 void error(const char *msg);
+
+#ifdef __cplusplus
+}
+#endif

@@ -5,6 +5,7 @@
 #include <xiApi.h>
 #include <xiExt.h>
 #include <iostream>
+#include "wifi.h"
 
 #define HandleResult(res,place) if (res!=XI_OK) { \
 	printf("Error after %s (%d)",place,res); \
@@ -17,6 +18,11 @@ using namespace std;
 Mat dst;
 
 Point arena_center;
+
+float net_error[5] = {0,0,0,0,0};
+float integral_error[5] = {0,0,0,0,0};  //Need to make these global
+float diff_error[5] = {0,0,0,0,0};      //Need to make these global
+char command[4];
 
 int main(int argc,char** argv)
 {
@@ -95,6 +101,9 @@ int main(int argc,char** argv)
 	double time_for_cap = 0;
 	double time_for_cvt = 0;
 	double time_for_rect = 0;
+
+	int socket = init_wifi(9750,"122.38.0.151");
+
 	while(1)
 	{	
 
@@ -125,7 +134,7 @@ int main(int argc,char** argv)
 //			time_for_warp = ((double)cvGetTickCount() - time_for_warp)/(1000.0*(double)cvGetTickFrequency());
 			
 			time_for_init= (double)cvGetTickCount();
-			oball.init(warp);
+//			oball.init(warp);
 			time_for_init = ((double)cvGetTickCount() - time_for_init)/(1000.0*(double)cvGetTickFrequency());
 		}
 		else if(f==0)
@@ -173,7 +182,7 @@ int main(int argc,char** argv)
 //		printf("\nTime for imshow : %lf\n",(double)time_for_imshow);
 //		printf("\nTime for cvt : %lf\n",(double)time_for_cvt);
 //		printf("\nTime for rect : %lf\n",(double)time_for_rect);
-		printf("\nTime for loop : %lf\n",(double)time_for_loop);
+//		printf("\nTime for loop : %lf\n",(double)time_for_loop);
 
 		c = waitKey(1);
 		if(c==27)
