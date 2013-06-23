@@ -19,10 +19,10 @@ Mat dst;
 
 Point arena_center;
 
-float net_error[5] = {0,0,0,0,0};
-float integral_error[5] = {0,0,0,0,0};  //Need to make these global
-float diff_error[5] = {0,0,0,0,0};      //Need to make these global
-char command[4];
+float net_error[5] = {0,0,0,0,0};			//For PID
+float integral_error[5] = {0,0,0,0,0};  	//For PID
+float diff_error[5] = {0,0,0,0,0};      	//For PID
+char command[4];							//4 byte command to be sent to the bot. Don't change these. I need them to be global.
 
 int main(int argc,char** argv)
 {
