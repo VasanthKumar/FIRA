@@ -6,6 +6,7 @@
 #include <xiExt.h>
 #include <iostream>
 #include "wifi.h"
+#include "motion.h"
 
 #define HandleResult(res,place) if (res!=XI_OK) { \
 	printf("Error after %s (%d)",place,res); \
@@ -19,10 +20,7 @@ Mat dst;
 
 Point arena_center;
 
-float net_error[5] = {0,0,0,0,0};			//For PID
 float integral_error[5] = {0,0,0,0,0};  	//For PID
-float diff_error[5] = {0,0,0,0,0};      	//For PID
-char command[4];							//4 byte command to be sent to the bot. Don't change these. I need them to be global.
 
 int main(int argc,char** argv)
 {
@@ -103,6 +101,7 @@ int main(int argc,char** argv)
 	double time_for_rect = 0;
 
 	int socket = init_wifi(9750,"122.38.0.151");
+//	VideoWriter out("ipfeedback.avi",CV_FOURCC('M','J','P','G'),40,Size(640,480));
 
 	while(1)
 	{	
@@ -134,7 +133,7 @@ int main(int argc,char** argv)
 //			time_for_warp = ((double)cvGetTickCount() - time_for_warp)/(1000.0*(double)cvGetTickFrequency());
 			
 			time_for_init= (double)cvGetTickCount();
-//			oball.init(warp);
+			oball.init(warp);
 			time_for_init = ((double)cvGetTickCount() - time_for_init)/(1000.0*(double)cvGetTickFrequency());
 		}
 		else if(f==0)
@@ -165,14 +164,14 @@ int main(int argc,char** argv)
 //		time_for_bot = ((double)cvGetTickCount() - time_for_bot)/(1000.0*(double)cvGetTickFrequency());
 		
 //		time_for_rect= (double)cvGetTickCount();
-		rectangle(warp,Point(bot.bot_center.x-15,bot.bot_center.y-15),Point(bot.bot_center.x+15,bot.bot_center.y+15), Scalar(0,0,255));
+//		rectangle(warp,Point(bot.bot_center.x-15,bot.bot_center.y-15),Point(bot.bot_center.x+15,bot.bot_center.y+15), Scalar(0,0,255));
 //		time_for_rect = ((double)cvGetTickCount() - time_for_rect)/(1000.0*(double)cvGetTickFrequency());
-		rectangle(warp,oball.bounding_box,Scalar(0,0,255));
+//		rectangle(warp,oball.bounding_box,Scalar(0,0,255));
 		
 //		time_for_imshow = (double)cvGetTickCount();
 		imshow("warp",warp);
 //		time_for_imshow = ((double)cvGetTickCount() - time_for_imshow)/(1000.0*(double)cvGetTickFrequency());
-		time_for_loop = ((double)cvGetTickCount() - time_for_loop)/(1000.0*(double)cvGetTickFrequency());
+//		time_for_loop = ((double)cvGetTickCount() - time_for_loop)/(1000.0*(double)cvGetTickFrequency());
 		
 //		printf("\nTime for cap : %lf\n",(double)time_for_cap);
 //		printf("\nTime for resize : %lf\n",(double)time_for_resize);
@@ -183,8 +182,13 @@ int main(int argc,char** argv)
 //		printf("\nTime for cvt : %lf\n",(double)time_for_cvt);
 //		printf("\nTime for rect : %lf\n",(double)time_for_rect);
 //		printf("\nTime for loop : %lf\n",(double)time_for_loop);
-
+		
+		movement(0,socket, bot.bot_angle-180,0,20,integral_error);
+//		cout<<(bot.bot_angle)<<'\n';
+		
+//		out << warp;
 		c = waitKey(1);
+		
 		if(c==27)
 			break;
 		if(c == ' ')
@@ -195,4 +199,5 @@ int main(int argc,char** argv)
 	destroyAllWindows();
 //	cap.release();
 }	
+
 

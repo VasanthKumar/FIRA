@@ -268,6 +268,30 @@ our_bot.cpp.s:
 	$(MAKE) -f CMakeFiles/fira.dir/build.make CMakeFiles/fira.dir/our_bot.cpp.s
 .PHONY : our_bot.cpp.s
 
+wifi.o: wifi.c.o
+.PHONY : wifi.o
+
+# target to build an object file
+wifi.c.o:
+	$(MAKE) -f CMakeFiles/fira.dir/build.make CMakeFiles/fira.dir/wifi.c.o
+.PHONY : wifi.c.o
+
+wifi.i: wifi.c.i
+.PHONY : wifi.i
+
+# target to preprocess a source file
+wifi.c.i:
+	$(MAKE) -f CMakeFiles/fira.dir/build.make CMakeFiles/fira.dir/wifi.c.i
+.PHONY : wifi.c.i
+
+wifi.s: wifi.c.s
+.PHONY : wifi.s
+
+# target to generate assembly for a file
+wifi.c.s:
+	$(MAKE) -f CMakeFiles/fira.dir/build.make CMakeFiles/fira.dir/wifi.c.s
+.PHONY : wifi.c.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -296,6 +320,9 @@ help:
 	@echo "... our_bot.o"
 	@echo "... our_bot.i"
 	@echo "... our_bot.s"
+	@echo "... wifi.o"
+	@echo "... wifi.i"
+	@echo "... wifi.s"
 .PHONY : help
 
 
