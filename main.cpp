@@ -101,6 +101,9 @@ int main(int argc,char** argv)
 	double time_for_rect = 0;
 
 	int socket = init_wifi(9750,"122.38.0.151");
+	char command[4]={'0','F','0','0'};
+	tcpWrite(socket,command);
+
 //	VideoWriter out("ipfeedback.avi",CV_FOURCC('M','J','P','G'),40,Size(640,480));
 
 	while(1)
@@ -154,7 +157,7 @@ int main(int argc,char** argv)
 		}
 
 //		warp.convertTo(warp,CV_8UC3,255);
-
+	
 		time_for_cvt = (double)cvGetTickCount();
 		cvtColor(warp, dst, CV_BGR2HSV);
 		time_for_cvt = ((double)cvGetTickCount() - time_for_cvt)/(1000.0*(double)cvGetTickFrequency());
@@ -164,7 +167,7 @@ int main(int argc,char** argv)
 //		time_for_bot = ((double)cvGetTickCount() - time_for_bot)/(1000.0*(double)cvGetTickFrequency());
 		
 //		time_for_rect= (double)cvGetTickCount();
-//		rectangle(warp,Point(bot.bot_center.x-15,bot.bot_center.y-15),Point(bot.bot_center.x+15,bot.bot_center.y+15), Scalar(0,0,255));
+		rectangle(warp,Point(bot.bot_center.x-15,bot.bot_center.y-15),Point(bot.bot_center.x+15,bot.bot_center.y+15), Scalar(0,0,255));
 //		time_for_rect = ((double)cvGetTickCount() - time_for_rect)/(1000.0*(double)cvGetTickFrequency());
 //		rectangle(warp,oball.bounding_box,Scalar(0,0,255));
 		
@@ -183,8 +186,8 @@ int main(int argc,char** argv)
 //		printf("\nTime for rect : %lf\n",(double)time_for_rect);
 //		printf("\nTime for loop : %lf\n",(double)time_for_loop);
 		
-		movement(0,socket, bot.bot_angle-180,0,20,integral_error);
-//		cout<<(bot.bot_angle)<<'\n';
+//		movement(0,socket, bot.bot_angle-180,0,20,integral_error);
+		cout<<(bot.bot_angle)<<'\n';
 		
 //		out << warp;
 		c = waitKey(1);

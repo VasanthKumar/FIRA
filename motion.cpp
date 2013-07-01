@@ -46,10 +46,11 @@ void shoot(float angle,int bot_id,int socket)
 */
 void pass(int bot_id,int socket)
 {
-	char command[2];
+	char command[4];
 	command[0] = (char)(48+bot_id);
 	command[1] = 'F';
-	
+	command[2] = '~';
+	command[3] = '~';	
 	tcpWrite(socket,command);
 }
 
@@ -64,9 +65,9 @@ void pass(int bot_id,int socket)
 **integral_error: integral error for PID
 **velocity: maximum velocity of travel
 */
-void movement(int bot_id, int socket, float bot_angle,float angle, float dist, float integral_error[5],int velocity)
+void movement(int bot_id, int socket, float bot_angle,float angle, float dist, float integral_error[5]/*,int velocity */)
 {
-
+	int velocity=50; // shud be deleted
 	int left, right; 						//Values to the wheels
 	float error, difference, integral, derivative,time = 0.014;
 	float kp = 0.45, ki = 1.2;
@@ -90,7 +91,7 @@ void movement(int bot_id, int socket, float bot_angle,float angle, float dist, f
 			error = (kp*difference);// + (ki*integral_error[bot_id])+ (kd*derivative);
 
 			right = ((30 - error)*velocity/60.0);
-			left = ((error + 30)*velcity/60.0);
+			left = ((error + 30)*velocity/60.0);
 		
 			if(right>velocity)
 				right = velocity;
@@ -134,7 +135,7 @@ void movement(int bot_id, int socket, float bot_angle,float angle, float dist, f
 			error = (kp*difference);// + (ki*integral_error[bot_id])+ (kd*derivative);
 
 			left = ((30 - error)*velocity/60.0);
-			right = ((error + 30)*velcity/60.0);
+			right = ((error + 30)*velocity/60.0);
 		
 			if(right>velocity)
 				right = velocity;
@@ -167,7 +168,7 @@ void movement(int bot_id, int socket, float bot_angle,float angle, float dist, f
 		}
 
 		tcpWrite(socket,command);
-		cout<<command<<'\n';	
+//		cout<<command<<'\n';	
 	}
 }
 			
