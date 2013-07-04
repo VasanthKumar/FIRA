@@ -21,6 +21,7 @@ Mat dst;
 Point arena_center;
 
 float integral_error[5] = {0,0,0,0,0};  	//For PID
+float velocity = 90;
 
 int main(int argc,char** argv)
 {
@@ -186,7 +187,7 @@ int main(int argc,char** argv)
 //		printf("\nTime for rect : %lf\n",(double)time_for_rect);
 //		printf("\nTime for loop : %lf\n",(double)time_for_loop);
 		
-//		movement(0,socket, bot.bot_angle-180,0,20,integral_error);
+		movement(0,socket, bot.bot_angle-180,0,20,integral_error, velocity);
 		cout<<(bot.bot_angle)<<'\n';
 		
 //		out << warp;
