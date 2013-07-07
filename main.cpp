@@ -23,6 +23,13 @@ Point arena_center;
 float integral_error[5] = {0,0,0,0,0};  	//For PID
 float velocity = 90;
 
+//A small class to make life easier for the ones working with videos
+class Image {
+    public :
+        int width;
+        int height;
+};
+
 int main(int argc,char** argv)
 {
 
@@ -30,8 +37,9 @@ int main(int argc,char** argv)
 	int f=0;
 	
 //	cap.open(argv[1]);
-//	Mat image;
-//	cap >> image;
+//    Image image;
+//    image.width = cap.get(3);
+//    image.height = cap.get(4);
 
 	HANDLE xiH = NULL;
 	XI_RETURN stat = XI_OK;
@@ -87,9 +95,9 @@ int main(int argc,char** argv)
 	char c = 0;
 	our_bot bot;
 	
-	bot.basecolor = 'y';
+	bot.basecolor = 'g';
 	bot.lcolor = 'v';
-	bot.rcolor = 'g';
+	bot.rcolor = 'y';
 
 	double time_for_warp = 0;
 	double time_for_init = 0;
@@ -107,10 +115,8 @@ int main(int argc,char** argv)
 
 //	VideoWriter out("ipfeedback.avi",CV_FOURCC('M','J','P','G'),40,Size(640,480));
 
-	while(1)
-	{	
-
-		
+	while( c != 27 )
+	{
 		time_for_loop = (double)cvGetTickCount();
 
 		time_for_cap = (double)cvGetTickCount();
@@ -120,7 +126,7 @@ int main(int argc,char** argv)
 		HandleResult(stat,"xiGetImage");
 		src_image.data = (uchar*)image.bp;
 
-//		cap >> src_image;
+	//	cap >> src_image;
 		time_for_cap = ((double)cvGetTickCount() - time_for_cap)/(1000.0*(double)cvGetTickFrequency());
 		
 		time_for_resize = (double)cvGetTickCount();
@@ -137,7 +143,7 @@ int main(int argc,char** argv)
 //			time_for_warp = ((double)cvGetTickCount() - time_for_warp)/(1000.0*(double)cvGetTickFrequency());
 			
 			time_for_init= (double)cvGetTickCount();
-			oball.init(warp);
+			//oball.init(warp);
 			time_for_init = ((double)cvGetTickCount() - time_for_init)/(1000.0*(double)cvGetTickFrequency());
 		}
 		else if(f==0)
@@ -148,7 +154,7 @@ int main(int argc,char** argv)
 			pts[1].x = 568;
 			pts[1].y = 35;
 			pts[2].x = 564;
-			pts[2].y = 431;
+		    pts[2].y = 431;
 			pts[3].x = 55;
 			pts[3].y = 435;
 			warp_mat=getTransformMat(pts);
@@ -187,8 +193,7 @@ int main(int argc,char** argv)
 //		printf("\nTime for rect : %lf\n",(double)time_for_rect);
 //		printf("\nTime for loop : %lf\n",(double)time_for_loop);
 		
-		movement(0,socket, bot.bot_angle-180,0,20,integral_error, velocity);
-		cout<<(bot.bot_angle)<<'\n';
+//		movement(0,socket, bot.bot_angle-180,0,20,integral_error, velocity);
 		
 //		out << warp;
 		c = waitKey(1);
@@ -199,7 +204,7 @@ int main(int argc,char** argv)
 			c=waitKey(0);
 
 	}
-	delete pts;
+	delete[] pts;
 	destroyAllWindows();
 //	cap.release();
 }	

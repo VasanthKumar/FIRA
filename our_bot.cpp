@@ -31,7 +31,7 @@ void limit_location_within_arena( Rect &location ){
 }
 
 void update_location( Rect &location, Point center ){
-//    cout<<"center = "<<center.x<<' '<<center.y<<endl;
+    //    cout<<"center = "<<center.x<<' '<<center.y<<endl;
     location = Rect( center.x - BOUND_RECT, center.y - BOUND_RECT, 2 * BOUND_RECT, 2 * BOUND_RECT );
 }
 
@@ -39,37 +39,35 @@ void expand_location( Rect &location ){
     location = Rect( location.x - BOUND_RECT, location.y - BOUND_RECT, location.width + 2 * BOUND_RECT, location.height + 2 * BOUND_RECT );
 }
 
-inline double distanc( Point pt1, Point pt2 ){
+inline double distanc( Point2f pt1, Point2f pt2 ){
     return ( sqrt( ( pt1.x - pt2.x ) * ( pt1.x - pt2.x ) + ( pt1.y - pt2.y ) * ( pt1.y - pt2.y ) ) );
 }
 
-int angl( Point2f dst, Point2f cen, Point2f front ){
+int angl( Point2f pt1, Point2f cen, Point2f pt2 ){
 
-    float a = ( float )( ( dst.x - cen.x ) * ( front.y - cen.y ) - ( front.x - cen.x ) * ( dst.y - cen.y ) );	//angle through cross product.
-    float b = ( float )( distanc( cen, dst ) * distanc( cen, front ) );
-    float result = 0;
+    // cross product calculation
+    float a = ( float )( ( pt2.x - cen.x ) * ( pt1.y - cen.y ) - ( pt1.x - cen.x ) * ( pt2.y - cen.y ) );
+    float b = ( float )( distanc( cen, pt1 ) * distanc( cen, pt2 ) );
+    float sin_inv;
     float angle = 1000;
 
-    if( b != 0 ){
-        result = asin( a / b );
+    float dot =(pt2.x - cen.x ) * ( pt1.x - cen.x ) +
+        (pt2.y - cen.y) * (pt1.y - cen.y);
 
-        if(distanc( cen, dst ) > distanc( front, dst ) ){
-            angle = ( ( result * 90 / 1.57 ) );
+    if( b != 0 ){
+        sin_inv = asin( a / b ) * 180 / PI;
+        
+        if( dot < 0 ){
+            if ( sin_inv > 0 )
+                angle = 180 - sin_inv;
+            else
+                angle = -180 - sin_inv;
         }
-        else if( result > 0 ){
-            angle= ( ( 180 - result * 90 / 1.57 ) );
+        else if( dot > 0 || dot == 0 && sin_inv != 0 ){
+            angle = sin_inv;
         }
-        else if( result < 0 ){
-            angle = ( -180 - result * 90 / 1.57 );
-        }
-    }
-    if( angle == 1000 ){
-        if( front.y > cen.y )
-            angle = 180;
-        else if( cen.y > front.y )
-            angle = 0;
         else
-            printf( " < " );
+            cout << "<" << endl;
     }
     return angle;
 }
@@ -97,28 +95,17 @@ double our_bot::pos(){
     Point center;
     center = Point( ( front_center.x + back_center.x ) / 2, ( front_center.y + back_center.y ) / 2 );
 
-
-    x = ( ( center.x - arena_center.x ) *250 ) / goal_rect.width;		//center wrt the arena center.
+    // making arena center as x=0 and y=0
+    x = ( ( center.x - arena_center.x ) *250 ) / goal_rect.width;
     y=-1*((center.y-arena_center.y)*250)/goal_rect.width;
-    
-	bot_pos.x = x;
-	bot_pos.y = y;
-//	printf("botx=%f boty=%f\n",x,y);
+
+    bot_pos.x = x;
+    bot_pos.y = y;
+    //	printf("botx=%f boty=%f\n",x,y);
 }
 
 double our_bot::orientation(){
-
-    angle = angl( Point( 640, back_center.y ), back_center, front_center );
-
-    if( angle < 0 )
-        angle = -1 * angle;
-    else if( angle == 1000)		//case where the bot is not found in the bounding box.
-        angle = 0;
-    else if( angle > 0 )
-        angle = 360 - angle;
-	
-	bot_angle = angle;
-//    printf("angle%f\n",angle);
+    bot_angle = angl( Point( 640, back_center.y ), back_center, front_center );
 }
 
 
@@ -131,27 +118,28 @@ void our_bot::FindCenter(){
 
     Point frontl_center = Point( 0, 0 );
     Point frontr_center = Point( 0, 0 );
-    RotatedRect c1;
+    RotatedRect front_left;
 
-    RotatedRect c2;
+    RotatedRect front_right;
     back_center = Point( 0, 0 );
 
     for( int i = 0; i < BaseCenter.size(); i++ ){
 
         if(Area_base[i] > BASE_AREA_THRESH) {
-            c1 = closest_contour( mask[1], BaseCenter[i].center, Area_frontl );
-            c2 = closest_contour( mask[2], BaseCenter[i].center, Area_frontr );
+            front_left = closest_contour( mask[1], BaseCenter[i].center, Area_frontl );
+            front_right = closest_contour( mask[2], BaseCenter[i].center, Area_frontr );
 
+            if( front_left.center.x != 0 && front_right.center.x !=0 ){
 
-            if( c1.center.x != 0 && c2.center.x !=0 ){
-
-                if(angl( c1.center,BaseCenter[i].center,c2.center) > 25 &&
-                        distanc(c1.center,BaseCenter[i].center) < BOT_LENGTH && 
-                        distanc(c2.center,BaseCenter[i].center) < BOT_LENGTH )
+                float angle_check =angl(front_right.center,BaseCenter[i].center,front_left.center); 
+                
+                if( angle_check > 25 && angle_check < 80  &&
+                        distanc(front_left.center,BaseCenter[i].center) < BOT_LENGTH && 
+                        distanc(front_right.center,BaseCenter[i].center) < BOT_LENGTH )
                 {
                     back_center = BaseCenter[i].center;
-                    frontl_center = c1.center;
-                    frontr_center = c2.center;
+                    frontl_center = front_left.center;
+                    frontr_center = front_right.center;
 
                     break;
                 }	
@@ -174,15 +162,15 @@ void our_bot::update(){
     mask[1] = Mat::zeros(gray_mask[1].rows,gray_mask[1].cols,CV_8UC1);
     mask[2] = Mat::zeros(gray_mask[2].rows,gray_mask[2].cols,CV_8UC1);
 
-//    cout<<"before pickcolor\n";
+    //    cout<<"before pickcolor\n";
     pick_color( gray_mask[0],mask[0], basecolor );
     pick_color( gray_mask[1],mask[1], lcolor );
     pick_color( gray_mask[2],mask[2], rcolor );
-	
-//	imshow("green",mask[0]);
-//	imshow("pink",mask[1]);
-//	imshow("yellow",mask[2]);
-//	cout<<"color found\n";
+
+    imshow("green",mask[0]);
+    imshow("pink",mask[1]);
+    imshow("yellow",mask[2]);
+    //	cout<<"color found\n";
     FindCenter();
 
     if( front_center.x != 0 && back_center.x != 0 ){
@@ -191,7 +179,7 @@ void our_bot::update(){
         back_center = Point( back_center.x + location.x, back_center.y + location.y );
         bot_center = Point( ( front_center.x + back_center.x ) / 2, ( front_center.y + back_center.y ) / 2 );
         update_location( location, bot_center );
-//        cout<<"bot found!!"<<endl;
+        //        cout<<"bot found!!"<<endl;
     }
     else{
         expand_location( location );
@@ -199,8 +187,8 @@ void our_bot::update(){
 
     limit_location_within_arena( location );
 
-//    cout<<"location = "<<location.x<<' '<<location.y
-//        <<' '<<location.width<<' '<<location.height<<endl;
+    //    cout<<"location = "<<location.x<<' '<<location.y
+    //        <<' '<<location.width<<' '<<location.height<<endl;
     pos();
     orientation();
 }
