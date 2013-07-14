@@ -212,9 +212,11 @@ int main(int argc,char** argv)
 //		time_for_bot = (double)cvGetTickCount();
 		bot.update();
 //		time_for_bot = ((double)cvGetTickCount() - time_for_bot)/(1000.0*(double)cvGetTickFrequency());
-
-		if(bot.bot_angle>0)
-		{
+		bot.bot_angle -= 270; //TODO:Ask Hari to fix 90 deg offset
+		cout<<"Distance :"<<bot.distance<<'\t';
+		cout<<"Angle :"<<bot.bot_angle<<'\t';
+//		if(bot.bot_angle>0)
+//		{
 			if(bot.bot_angle>180){
 				bot.bot_angle = bot.bot_angle-360;
 			}
@@ -264,8 +266,8 @@ int main(int argc,char** argv)
 //				while(1);
 //			turn(0,socket, angle_buffer,90,integral_error);
 
-			cout<<(bot.bot_angle)<<'\t';
-		}
+//			cout<<(bot.bot_angle)<<'\t';
+//		}
 
 
 		

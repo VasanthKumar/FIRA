@@ -120,10 +120,10 @@ double our_bot::orientation(){
         angle = 360 - angle;
 
 	bot_angle = angle;
-	cout<<"Distance: "<<sqrt(pow(back_center.x-dst_point.x,2)+pow(back_center.y-dst_point.y,2))<<"\n";
+//	cout<<"Distance: "<<sqrt(pow(back_center.x-dst_point.x,2)+pow(back_center.y-dst_point.y,2))<<"\t";
 	distance = sqrt(pow(back_center.x-dst_point.x,2)+pow(back_center.y-dst_point.y,2));
 
-    printf("angle%f\t",angle);
+//    printf("angle%f\t",angle);
 
 }
 

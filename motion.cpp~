@@ -5,6 +5,7 @@
 #include"wifi.h"
 #include "motion.h"
 #include<iostream>
+<<<<<<< HEAD
 #include "xbee.h"
 #include<queue>
 #include<math.h>
@@ -12,6 +13,10 @@
 using namespace std;
 
 
+=======
+
+using namespace std;
+>>>>>>> b06a5f954db4fe564606ee52f3a7888a53f61636
 
 /*
 **The shoot command is to be used when there is no path for the bot to go but there is space for the ball to go.
@@ -92,6 +97,7 @@ bool stopped(int bot_id, int socket, int curr[2], int prev[2], float tol){
 **integral_error: integral error for PID
 **velocity: maximum velocity of travel
 */
+<<<<<<< HEAD
 
 int movement(int bot_id, int socket, float bot_angle,float angle, float dist, float integral_error[5],int flag[2],float prev_error[5],int velocity,int stop,float tol)
 {
@@ -102,7 +108,7 @@ int movement(int bot_id, int socket, float bot_angle,float angle, float dist, fl
 	float kp, ki, kd;
 	kp = 0.4;
 	ki = 0;
-	kd = 0.05;
+	kd = 0.07;
 	char command[4];
     char *bot1_buffer = (char *)malloc(BUFFER_SIZE*sizeof(char));
     #define BUFFER_SIZE 8
@@ -321,5 +327,113 @@ char *bot1_buffer = (char *)malloc(BUFFER_SIZE*sizeof(char));
 //		cout<<command<<'\n';	
 }
 
+=======
+void movement(int bot_id, int socket, float bot_angle,float angle, float dist, float integral_error[5]/*,int velocity */)
+{
+	int velocity=50; // shud be deleted
+	int left, right; 						//Values to the wheels
+	float error, difference, integral, derivative,time = 0.014;
+	float kp = 0.45, ki = 1.2;
+	char command[4];
+	command[0] = (char)(48+bot_id);
+
+	if(dist<10)
+	{
+			command[1] = 's';
+			command[2] = '!';
+			command[3] = '!';
+	}
+	else
+	{
+		difference = bot_angle - angle;
+	
+		if(difference<=90 && difference>=-90)
+		{
+			integral_error[bot_id] = integral_error[bot_id] + difference*time;
+			//derivative = (difference - prev_error[bot_id])/time; 
+			error = (kp*difference);// + (ki*integral_error[bot_id])+ (kd*derivative);
+
+			right = ((30 - error)*velocity/60.0);
+			left = ((error + 30)*velocity/60.0);
+		
+			if(right>velocity)
+				right = velocity;
+			if(left>velocity)
+				left = velocity;
+			
+			if(right<-velocity)
+				right =	-velocity;
+			if(left<-velocity)
+				left = -velocity;
+		
+			if(right>0 && left>0)
+			{
+				command[1] = 'F';
+				command[2] = (char)right;
+				command[3] = (char)left;
+			}
+			else if(right>0 && left<0)
+			{
+				command[1] = 'R';
+				command[2] = (char)right;
+				command[3] = (char)(-1*left);
+			}
+			else if(right<0 && left>0)
+			{
+				command[1] = 'L';
+				command[2] = (char)(-1*right);
+				command[3] = (char)(left);
+			}
+		}
+
+		else
+		{
+			if(difference>90)
+				difference = 180 - difference;
+			else if(difference<-90)
+				difference = -180-difference;
+			
+			integral_error[bot_id] = integral_error[bot_id] + difference*time;
+			//derivative = (difference - prev_error[bot_id])/time; 
+			error = (kp*difference);// + (ki*integral_error[bot_id])+ (kd*derivative);
+
+			left = ((30 - error)*velocity/60.0);
+			right = ((error + 30)*velocity/60.0);
+		
+			if(right>velocity)
+				right = velocity;
+			if(left>velocity)
+				left = velocity;
+			
+			if(right<-velocity)
+				right =	-velocity;
+			if(left<-velocity)
+				left = -velocity;
+		
+			if(right>0 && left>0)
+			{
+				command[1] = 'B';
+				command[2] = (char)right;
+				command[3] = (char)left;
+			}
+			else if(right>0 && left<0)
+			{
+				command[1] = 'L';
+				command[2] = (char)right;
+				command[3] = (char)(-1*left);
+			}
+			else if(right<0 && left>0)
+			{
+				command[1] = 'R';
+				command[2] = (char)(-1*right);
+				command[3] = (char)(left);
+			}
+		}
+
+		tcpWrite(socket,command);
+//		cout<<command<<'\n';	
+	}
+}
+>>>>>>> b06a5f954db4fe564606ee52f3a7888a53f61636
 			
 	
