@@ -12,7 +12,6 @@
 using namespace std;
 
 
-
 /*
 **The shoot command is to be used when there is no path for the bot to go but there is space for the ball to go.
 **The function rotates the bot at a very high speed in the required direction.
@@ -321,5 +320,4 @@ char *bot1_buffer = (char *)malloc(BUFFER_SIZE*sizeof(char));
 //		cout<<command<<'\n';	
 }
 
-			
-	
+

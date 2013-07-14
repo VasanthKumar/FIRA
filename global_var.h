@@ -47,7 +47,7 @@
 #define GOAL_WIDTH      15
 #define BOT_LENGTH      18
 #define BALL_DIAMETER   3
-#define PI              3.14159265
+#define PI              3.1415926535
 
 /**********************
   co-ordinates :
