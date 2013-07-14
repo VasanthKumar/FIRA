@@ -5,8 +5,13 @@
 #include"wifi.h"
 #include "motion.h"
 #include<iostream>
+#include "xbee.h"
+#include<queue>
+#include<math.h>
 
 using namespace std;
+
+
 
 /*
 **The shoot command is to be used when there is no path for the bot to go but there is space for the ball to go.
@@ -54,6 +59,28 @@ void pass(int bot_id,int socket)
 	tcpWrite(socket,command);
 }
 
+bool stopped(int bot_id, int socket, int curr[2], int prev[2], float tol){
+	
+	float temp;
+	queue<float> dist;
+	temp = dist.back();
+	float bot_distance;
+	bot_distance = sqrt(pow(prev[0]-curr[0],2)+pow(prev[1]-curr[1],2));
+	if(dist.size()<5 || dist.empty()){
+		dist.push(bot_distance);
+		if((bot_distance - temp) > tol){
+			for(int i = 0; i< dist.size(); i++)
+				dist.pop();
+		}		
+		prev[0] = curr[0];	
+		prev[1] = curr[1];
+		return false;	
+	}			
+	else
+		return true;
+	
+}
+
 /*
 **This is the motion command. It basically handles movement of bots using PID.
 **It takes the following arguements
@@ -65,111 +92,234 @@ void pass(int bot_id,int socket)
 **integral_error: integral error for PID
 **velocity: maximum velocity of travel
 */
-void movement(int bot_id, int socket, float bot_angle,float angle, float dist, float integral_error[5]/*,int velocity */)
+
+int movement(int bot_id, int socket, float bot_angle,float angle, float dist, float integral_error[5],int flag[2],float prev_error[5],int velocity,int stop,float tol)
 {
-	int velocity; // shud be deleted
-	int left, right; 						//Values to the wheels
+    	//flag variables
+    float m=1;                  //shud be deleted
+	int left, right, direction = 1,decel=1; 					//Values to the wheels
+	float correction, difference,derivative;            //integral, derivative, time = 0.014;
+	float kp, ki, kd;
+	kp = 0.4;
+	ki = 0;
+	kd = 0.05;
+	char command[4];
+    char *bot1_buffer = (char *)malloc(BUFFER_SIZE*sizeof(char));
+    #define BUFFER_SIZE 8
+	command[0] = (char)(48+bot_id);
+    flag[0] = flag[0] + 1;										// TODO Flag[0] is to remove the frame error @ the beginning of the code.
+    															// Flag[1] is for the acceleration to build up slowly
+	
+    if(flag[0]>20)
+    {
+			flag[1] += 1;
+			difference = bot_angle;// - angle;
+			if(difference>90)		// Second Quadrant(Back motion)
+			{
+				direction = -1;
+				difference= 180 - (difference);
+			}
+			else if(difference<-90)	// Second Quadrant(Back motion)
+			{
+				direction = -1;
+				difference = abs(difference) - 180;
+			}
+			
+			derivative = abs(difference) - abs(prev_error[bot_id]);
+			correction = (kp*difference) + (ki*integral_error[0])+ (kd*derivative);
+			prev_error[bot_id] = difference;						
+			integral_error[bot_id] += correction;								
+            cout<<"correction:"<<correction<<"\t";
+			
+//			switch(stop)
+//			{
+//				case 1:{	// Decelerate to a velocity of 30	
+//							m=(dist-tol)/30;					// Bringing down the velocity break;
+//				       }
+//				case 2:{	// Decelerate to a complete stop
+//							velocity=30;					// You can't stop without going to 30 speed first
+//							if(dist>45)
+//								m=1;
+//							else if(dist>25 && dist<=45)
+//								m=(dist-20)/25;
+//							else if(dist>25 && dist<=45)
+//								m=(dist-20)/25;	
+//							else
+//								m=0;
+//							if(!stopped()){
+//								command[1] = 's';
+//								command[2] = '0';
+//								command[3] = 's';
+//								send_command(command);
+//								return 0;
+//							}	
+//                            break;
+//						}
+//				default:{	// No deceleration
+//							m=1;
+//                            break;
+//						}
+//				cout<<" Stop is "<<stop<<" and m is "<<m<<"\t";
+//			}
+			if(difference>0)
+			{
+    			left = direction*velocity*m;				
+				right = direction*(velocity - abs(correction))*m;
+				if(right<(-1*velocity))
+					right = -1*velocity;
+			}
+			if(difference<0) 
+			{
+    			right = direction*(velocity)*m;				
+    			left = direction*(velocity - abs(correction))*m;
+				if(left<(-1*velocity))
+					left = -1*velocity;
+			}
+		    if(flag[1]<10)
+		    {
+			    left=(left/10)*flag[1];
+			    right=(right/10)*flag[1];
+		    }
+			cout<<"Left: "<<left<<"\tRight: "<<right<<"\t";
+			if(direction >0){
+				if(right>0 && left>0)
+				{
+					command[1] = 'F';
+					command[2] = (char)right;
+					command[3] = (char)(left);
+				}
+				else if(right>0 && left<0)
+				{
+					command[1] = 'R';
+					command[2] = (char)right;
+					command[3] = (char)(-1*left);
+				}
+				else if(right<0 && left>0)
+				{
+					command[1] = 'L';
+					command[2] = (char)(-1*right);
+					command[3] = (char)(left);
+				}
+				else if(right<0 && left<0)
+				{
+					command[1] = 'B';
+					command[2] = (char)abs(right);
+					command[3] = (char)abs(left);
+				}
+			}
+			else if(direction<0){
+					if(right>0 && left>0)
+				{
+					command[1] = 'F';
+					command[2] = (char)left;
+					command[3] = (char)(right);
+				}
+				else if(right>0 && left<0)
+				{
+					command[1] = 'R';
+					command[2] = (char)abs(left);
+					command[3] = (char)abs(right);
+				}
+				else if(right<0 && left>0)
+				{
+					command[1] = 'L';
+					command[2] = (char)abs(left);
+					command[3] = (char)abs(right);
+				}
+				else if(right<0 && left<0)
+				{
+					command[1] = 'B';
+					command[2] = (char)abs(left);
+					command[3] = (char)abs(right);
+				}
+				
+			}
+
+		}
+		
+    
+    else
+    {
+        command[1] = 's';
+        command[2] = '0';
+        command[3] = 's';
+    }
+
+//		tcpWrite(socket,command);
+		send_command(command);
+		return 0;
+// printf("Got : %s \n", tcpRead(socket,bot1_buffer));
+}
+
+
+void turn(int bot_id, int socket, float bot_angle,float angle, float integral_error[5]/*,int velocity */)
+{
+	float velocity=60; // shud be deleted
+	int value1,value2; 						//Values to the wheels
 	float error, difference, integral, derivative,time = 0.014;
-	float kp = 0.45, ki = 1.2;
+	float kp, ki = 0.01;
+	kp = 0.2;
 	char command[4];
 	command[0] = (char)(48+bot_id);
-
-	if(dist<10)
+char *bot1_buffer = (char *)malloc(BUFFER_SIZE*sizeof(char));
+#define BUFFER_SIZE 8
+	difference = bot_angle;// - angle;
+	if(abs(difference)<2)
 	{
 			command[1] = 's';
-			command[2] = '!';
-			command[3] = '!';
+			command[2] = '0';
+			command[3] = 's';
 	}
 	else
 	{
-		difference = bot_angle - angle;
-	
-		if(difference<=90 && difference>=-90)
-		{
-			integral_error[bot_id] = integral_error[bot_id] + difference*time;
-			//derivative = (difference - prev_error[bot_id])/time; 
-			error = (kp*difference);// + (ki*integral_error[bot_id])+ (kd*derivative);
-
-			right = ((30 - error)*velocity/60.0);
-			left = ((error + 30)*velocity/60.0);
-		
-			if(right>velocity)
-				right = velocity;
-			if(left>velocity)
-				left = velocity;
+//			difference = bot_angle;// - angle;
+//			if((difference>90) || (difference<-90))
+//			{
+//				difference=-(180 + angle - bot_angle);
+//			}	
+			//cout<<"diff"<<difference<<endl;		
+			//integral_error[bot_id] = integral_error[bot_id] + difference*time;
+			//derivative = (difference - prev_error[bot_id])/time;
+			if(abs(difference)<30){ 
+			error = (kp*difference);// + (ki*integral_error[0]);//+ (kd*derivative);
 			
-			if(right<-velocity)
-				right =	-velocity;
-			if(left<-velocity)
-				left = -velocity;
-		
-			if(right>0 && left>0)
-			{
-				command[1] = 'F';
-				command[2] = (char)right;
-				command[3] = (char)left;
+			
+			//integral_error[0]+=error;
+			//cout<<"error"<<error<<endl;
+			
+				
+			value1= abs(error);
+			value2=value1;
+			if(value1>velocity){
+				value1 = velocity;
+				value2=velocity;
 			}
-			else if(right>0 && left<0)
-			{
-				command[1] = 'R';
-				command[2] = (char)right;
-				command[3] = (char)(-1*left);
 			}
-			else if(right<0 && left>0)
+			else{
+				value1 = 20;
+				value2 = 20;
+			}
+			//cout<<"initial"<<left<<":"<<right<<endl;
+			if(difference>0)
 			{
 				command[1] = 'L';
-				command[2] = (char)(-1*right);
-				command[3] = (char)(left);
+				command[2] = (char)value1;
+				command[3] = (char)value2;
 			}
-		}
-
-		else
-		{
-			if(difference>90)
-				difference = 180 - difference;
-			else if(difference<-90)
-				difference = -180-difference;
+			if(difference<0)
+			{
+			command[1] = 'R';
+				command[2] = (char)value1;
+				command[3] = (char)value2;
+			}	
 			
-			integral_error[bot_id] = integral_error[bot_id] + difference*time;
-			//derivative = (difference - prev_error[bot_id])/time; 
-			error = (kp*difference);// + (ki*integral_error[bot_id])+ (kd*derivative);
-
-			left = ((30 - error)*velocity/60.0);
-			right = ((error + 30)*velocity/60.0);
-		
-			if(right>velocity)
-				right = velocity;
-			if(left>velocity)
-				left = velocity;
-			
-			if(right<-velocity)
-				right =	-velocity;
-			if(left<-velocity)
-				left = -velocity;
-		
-			if(right>0 && left>0)
-			{
-				command[1] = 'B';
-				command[2] = (char)right;
-				command[3] = (char)left;
-			}
-			else if(right>0 && left<0)
-			{
-				command[1] = 'L';
-				command[2] = (char)right;
-				command[3] = (char)(-1*left);
-			}
-			else if(right<0 && left>0)
-			{
-				command[1] = 'R';
-				command[2] = (char)(-1*right);
-				command[3] = (char)(left);
-			}
 		}
-
-		tcpWrite(socket,command);
+		//cout<<value1<<endl;
+//		tcpWrite(socket,command);
+		send_command(command);
+ // printf("Got : %s \n", tcpRead(socket,bot1_buffer));
 //		cout<<command<<'\n';	
-	}
 }
+
 			
 	

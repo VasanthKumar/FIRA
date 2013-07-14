@@ -85,7 +85,7 @@ clean/fast: clean
 
 # Prepare targets for installation.
 preinstall: all
-	$(MAKE) -f CMakeFiles/Makefile2 preinstall
+	$(MAKE) -f CMakeFiles/Makefile2 preinstall 
 .PHONY : preinstall
 
 # Prepare targets for installation.
@@ -116,7 +116,7 @@ fira/fast:
 
 # Build rule for target.
 main: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 main
+	$(MAKE) -f CMakeFiles/Makefile2 main 
 .PHONY : main
 
 # fast build rule for target.

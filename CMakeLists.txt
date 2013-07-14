@@ -7,9 +7,9 @@ project(main)
 FIND_PACKAGE(OpenCV REQUIRED)
 
 #set_source_files_properties(wifi.c PROPERTIES LANGUAGE CXX)
-add_library(fira arena.cpp ball.cpp colors.cpp contours.cpp our_bot.cpp wifi.c motion.cpp)
+add_library(fira arena.cpp ball.cpp colors.cpp contours.cpp our_bot.cpp wifi.c motion.cpp xbee.cpp)
 
 ADD_EXECUTABLE(${PROJECT_NAME} main.cpp)
 
-TARGET_LINK_LIBRARIES( ${PROJECT_NAME}  fira ${OpenCV_LIBS} m3api  )
+TARGET_LINK_LIBRARIES( ${PROJECT_NAME}  fira ${OpenCV_LIBS} m3api serial)
 

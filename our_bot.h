@@ -9,14 +9,16 @@ class our_bot{
 
     public:
         char basecolor;
-	char lcolor;
-	char rcolor;
+		char lcolor;
+		char rcolor;
         Mat* mask;
         Rect location;
         Point front_center, back_center, bot_center;
 		Point bot_pos;
 		float bot_angle;
-		
+		double distance;
+		Point dst_point;
+
         double x,y,angle;
 
         our_bot(); 

@@ -11,7 +11,7 @@ extern "C" {
 #include <netinet/in.h>
 #include <netdb.h> 
 
-#define BUFFER_SIZE 18    												 // Increase this as required
+#define BUFFER_SIZE 8    												 // Increase this as required
 
 int init_wifi(int bot_port,char* bot_address);
 void close_socket(int bot1_sockfd);

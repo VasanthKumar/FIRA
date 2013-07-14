@@ -67,7 +67,7 @@ void ball::findPosition(int flag=0)
         i++;
     }
 
-cout<<"counter = "<<counter<<endl;
+//cout<<"counter = "<<counter<<endl;
     if(counter)
     {
 

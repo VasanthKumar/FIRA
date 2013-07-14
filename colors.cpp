@@ -43,7 +43,7 @@
 //        return false;
 //}
 
-Scalar green_l(55,100,100),green_u(70,255,255),blue_l(75,100,100),blue_u(90,255,255),violet_l(13,100,100),violet_u(23,255,255),yellow_l(27,100,100),yellow_u(35,255,255),orange_l(3,100,255),orange_u(13,255,255);
+Scalar green_l(55,100,100),green_u(70,180,255),blue_l(75,100,100),blue_u(90,255,255),violet_l(13,80,140),violet_u(23,160,255),yellow_l(27,120,180),yellow_u(35,200,255),orange_l(3,100,255),orange_u(13,255,255);
 
 
 //inline bool check_jersey(int hue,int sat, int value){

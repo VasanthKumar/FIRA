@@ -14,6 +14,7 @@ using namespace cv;
 using namespace std;
 
 extern Point arena_center;
+//our_bot::dst_point = cv::Point(640,0);
 
 void limit_location_within_arena( Rect &location ){	
 
@@ -91,7 +92,7 @@ our_bot::~our_bot(){
     delete mask;
 }
 
-Rect goal_rect = Rect(0,480*65/180,640,480*50/180);
+Rect goal_rect = Rect(0,480*260/180,640,480*200/180);
 
 double our_bot::pos(){
     Point center;
@@ -104,11 +105,14 @@ double our_bot::pos(){
 	bot_pos.x = x;
 	bot_pos.y = y;
 //	printf("botx=%f boty=%f\n",x,y);
+
+
+	cout<<"Pos : "<<back_center.x<<"  "<<back_center.y<<"\n";
 }
 
 double our_bot::orientation(){
 
-    angle = angl( Point( 640, back_center.y ), back_center, front_center );
+    angle = angl( Point( dst_point.x,dst_point.y ), back_center, front_center );
 
     if( angle < 0 )
         angle = -1 * angle;
@@ -118,7 +122,10 @@ double our_bot::orientation(){
         angle = 360 - angle;
 	
 	bot_angle = angle;
-//    printf("angle%f\n",angle);
+	cout<<"Distance: "<<sqrt(pow(back_center.x-dst_point.x,2)+pow(back_center.y-dst_point.y,2))<<"\t";
+	distance = sqrt(pow(back_center.x-dst_point.x,2)+pow(back_center.y-dst_point.y,2));
+
+    printf("angle%f\t",angle);
 }
 
 
@@ -145,9 +152,9 @@ void our_bot::FindCenter(){
 
             if( c1.center.x != 0 && c2.center.x !=0 ){
 
-                if(angl( c1.center,BaseCenter[i].center,c2.center) > 25 &&
-                        distanc(c1.center,BaseCenter[i].center) < BOT_LENGTH && 
-                        distanc(c2.center,BaseCenter[i].center) < BOT_LENGTH )
+//                if(angl( c1.center,BaseCenter[i].center,c2.center) > 15 &&
+//                        distanc(c1.center,BaseCenter[i].center) < BOT_LENGTH && 
+//                        distanc(c2.center,BaseCenter[i].center) < BOT_LENGTH )
                 {
                     back_center = BaseCenter[i].center;
                     frontl_center = c1.center;
@@ -179,9 +186,9 @@ void our_bot::update(){
     pick_color( gray_mask[1],mask[1], lcolor );
     pick_color( gray_mask[2],mask[2], rcolor );
 	
-//	imshow("green",mask[0]);
-//	imshow("pink",mask[1]);
-//	imshow("yellow",mask[2]);
+	imshow("yellow",mask[0]);
+	imshow("pink",mask[1]);
+	imshow("green",mask[2]);
 //	cout<<"color found\n";
     FindCenter();
 
