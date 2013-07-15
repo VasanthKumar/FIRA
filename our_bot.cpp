@@ -16,6 +16,22 @@ using namespace std;
 extern Point arena_center;
 //our_bot::dst_point = cv::Point(640,0);
 
+inline double distanc( Point2f pt1, Point2f pt2 ){
+    return ( sqrt( ( pt1.x - pt2.x ) * ( pt1.x - pt2.x ) + ( pt1.y - pt2.y ) * ( pt1.y - pt2.y ) ) );
+}
+
+bool our_bot::ball_with_bot_func(Point ball_pos)
+{
+	double dist = distanc(ball_pos,back_center);
+	cout<<"dist :"<<dist<<"\t";
+//	cout<<"  "<<ball_pos.x<<"  "<<bot_pos.x<<"\t";
+	if(dist<23)
+		return true;
+	else
+		return false;
+}
+
+
 void limit_location_within_arena( Rect &location ){	
 
     if( location.x < 0 )
@@ -40,9 +56,6 @@ void expand_location( Rect &location ){
     location = Rect( location.x - BOUND_RECT, location.y - BOUND_RECT, location.width + 2 * BOUND_RECT, location.height + 2 * BOUND_RECT );
 }
 
-inline double distanc( Point2f pt1, Point2f pt2 ){
-    return ( sqrt( ( pt1.x - pt2.x ) * ( pt1.x - pt2.x ) + ( pt1.y - pt2.y ) * ( pt1.y - pt2.y ) ) );
-}
 
 int angl( Point2f pt1, Point2f cen, Point2f pt2 ){
 
@@ -71,7 +84,41 @@ int angl( Point2f pt1, Point2f cen, Point2f pt2 ){
             cout << "<" << endl;
     }
     return angle;
+    
 }
+
+//int angl( Point2f dst, Point2f cen, Point2f front ){
+
+//	float a = ( float )( ( dst.x - cen.x ) * ( front.y - cen.y ) - ( front.x - cen.x ) * ( dst.y - cen.y ) );  //angle through cross product.
+//    float b = ( float )( distanc( cen, dst ) * distanc( cen, front ) );
+//    float result = 0;
+//    float angle = 1000;
+
+//    if( b != 0 ){
+//        result = asin( a / b );
+
+//    if(distanc( cen, dst ) > distanc( front, dst ) ){
+//            angle = ( ( result * 90 / 1.57 ) );
+//        }
+//        else if( result > 0 ){
+//            angle= ( ( 180 - result * 90 / 1.57 ) );
+//        }
+//       else if( result < 0 ){
+//            angle = ( -180 - result * 90 / 1.57 );
+//        }
+//        }
+//    if( angle == 1000 ){
+//        if( front.y > cen.y )
+//            angle = 180;
+//        else if( cen.y > front.y )
+//            angle = 0;
+//        else
+//            cout << "<" << endl;
+//    }
+////    cout<<"A :"<<angle<<"\n";
+//    return angle;
+//}
+
 
 our_bot::our_bot(){
     x = 0, y = 0, angle = 0;
@@ -105,19 +152,19 @@ double our_bot::pos(){
 //	printf("botx=%f boty=%f\n",x,y);
 
 
-	cout<<"Pos : "<<back_center.x<<"  "<<back_center.y<<"\n";
+	cout<<"Pos : "<<back_center.x<<"  "<<back_center.y<<"\t";
 }
 
 double our_bot::orientation(){
 
     angle = angl( Point( dst_point.x,dst_point.y ), back_center, front_center );
 
-    if( angle < 0 )
-        angle = -1 * angle;
-    else if( angle == 1000)		//case where the bot is not found in the bounding box.
-        angle = 0;
-    else if( angle > 0 )
-        angle = 360 - angle;
+//    if( angle < 0 )
+//        angle = -1 * angle;
+//    else if( angle == 1000)		//case where the bot is not found in the bounding box.
+//        angle = 0;
+//    else if( angle > 0 )
+//        angle = 360 - angle;
 
 	bot_angle = angle;
 //	cout<<"Distance: "<<sqrt(pow(back_center.x-dst_point.x,2)+pow(back_center.y-dst_point.y,2))<<"\t";
@@ -214,3 +261,5 @@ void our_bot::update(){
     pos();
     orientation();
 }
+
+

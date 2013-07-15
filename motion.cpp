@@ -8,6 +8,7 @@
 #include "xbee.h"
 #include<queue>
 #include<math.h>
+#include<iomanip>
 
 using namespace std;
 
@@ -92,16 +93,24 @@ bool stopped(int bot_id, int socket, int curr[2], int prev[2], float tol){
 **velocity: maximum velocity of travel
 */
 
-int movement(int bot_id, int socket, float bot_angle,float angle, float dist, float integral_error[5],int flag[2],float prev_error[5],int velocity,int stop,float tol)
+int movement(int bot_id, int socket, float bot_angle,float angle, float dist, float integral_error[5],int flag[2],float prev_error[5],int velocity,int stop,float tol,bool ball_with_bot)
 {
     	//flag variables
     float m=1;                  //shud be deleted
 	int left, right, direction = 1,decel=1; 					//Values to the wheels
 	float correction, difference,derivative;            //integral, derivative, time = 0.014;
 	float kp, ki, kd;
-	kp = 0.4;
-	ki = 0;
-	kd = 0.07;
+	if(ball_with_bot){
+		kp = 0.7;
+		ki = 0;
+		kd = 0.06;
+	}
+//	kp = 0.4;
+	else{
+		kp = 0.4;
+		ki = 0;
+		kd = 0.07;
+	}
 	char command[4];
     char *bot1_buffer = (char *)malloc(BUFFER_SIZE*sizeof(char));
     #define BUFFER_SIZE 8
@@ -128,7 +137,7 @@ int movement(int bot_id, int socket, float bot_angle,float angle, float dist, fl
 			correction = (kp*difference) + (ki*integral_error[0])+ (kd*derivative);
 			prev_error[bot_id] = difference;						
 			integral_error[bot_id] += correction;								
-            cout<<"correction:"<<correction<<"\t";
+            cout<<std::setprecision(3)<<"correction:"<<correction<<"\t";
 			
 //			switch(stop)
 //			{
@@ -319,5 +328,68 @@ char *bot1_buffer = (char *)malloc(BUFFER_SIZE*sizeof(char));
  // printf("Got : %s \n", tcpRead(socket,bot1_buffer));
 //		cout<<command<<'\n';	
 }
+
+/*
+move bot along arc
+
+*/
+//void move_arc(int bot_id, int socket, float curr_pos[2], float next_pos[2], int theta, float time){
+//	float d = distance(curr_pos, next_pos);//TODO:Write this function
+//	float R = d/(2*sin(theta));
+//	int fwd = 0, bck = 0;
+//	float b = 0.75; // Bot width
+//	float r = 0.03; //Radius of wheel
+//	float omega;
+////	Arc Decision
+//	if(abs(theta)<90){
+//		fwd = 1;
+//		bck = 0;
+//	}
+//	else{
+//		fwd = 0;
+//		bck = 1;	
+//	}
+//	
+////	Calculating omega of bot
+//	omega = 2*R*theta/time;
+//	if(fwd == 1){
+//		left = (R+(b/2))*omega/r;
+//		right = (R-(b/2))*omega/r;
+//	}
+//	else{
+//		left = (R-(b/2))*omega/r;
+//		right = (R+(b/2))*omega/r;	
+//	}
+////	TODO:Send command to elec	
+
+//}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

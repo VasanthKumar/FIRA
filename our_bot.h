@@ -26,5 +26,6 @@ class our_bot{
         double pos();
         double orientation();
         void update();
+        bool ball_with_bot_func(Point ball_pos);
         ~our_bot();
 };

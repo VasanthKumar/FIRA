@@ -17,6 +17,7 @@
 using namespace cv;
 using namespace std;
 
+
 Mat dst;
 
 Point arena_center;
@@ -26,7 +27,8 @@ float prev_error[5] = {0,0,0,0,0};
 int flag_movt[2] = {0,0};
 
 float velocity = 90;
-
+char charf = 'p';		
+bool ball_with_bot;
 //A small class to make life easier for the ones working with videos
 class Image {
     public :
@@ -38,17 +40,17 @@ int main(int argc,char** argv)
 {
 
 	Point destinations[10];
-	int no_of_dest = 8;
+	int no_of_dest = 2;
 	destinations[0] = Point(110,330);
-	destinations[1] = Point(140,280);
-	destinations[2] = Point(185,265);
-	destinations[3] = Point(230,280);
-	destinations[4] = Point(260,330);
-	destinations[5] = Point(230,370);	
-	destinations[6] = Point(185,385);
-	destinations[7] = Point(140,370);	
+	destinations[1] = Point(550,260);
+//	destinations[2] = Point(185,265);
+//	destinations[3] = Point(230,230);
+//	destinations[4] = Point(260,330);
+//	destinations[5] = Point(230,370);	
+//	destinations[6] = Point(185,385);
+//	destinations[7] = Point(140,370);	
 	int count_of_dest = 0;
-    float tol=20;
+    float tol=30;
 
 
 //	VideoCapture cap;
@@ -113,27 +115,19 @@ int main(int argc,char** argv)
 	char c = 0;
 	our_bot bot;
 	
-	bot.basecolor = 'g';
+	bot.basecolor = 'y';
 	bot.lcolor = 'v';
 	bot.rcolor = 'g';
 	int turn_flag=0;
 
-	double time_for_warp = 0;
-	double time_for_init = 0;
-	double time_for_resize = 0;
-	double time_for_bot = 0;
-	double time_for_imshow = 0;
 	double time_for_loop = 0;
-	double time_for_cap = 0;
-	double time_for_cvt = 0;
-	double time_for_rect = 0;
 	int angle_buffer=0;
 	int socket;
 //	int socket = init_wifi(9750,"122.38.0.151");
 	char command[4];
 	int stop=0;
-	int velocity=60;
-			
+	int velocity=40;
+	
 	//tcpWrite(socket,command);
 
 
@@ -145,38 +139,28 @@ int main(int argc,char** argv)
 
 
 //	VideoWriter out("ipfeedback.avi",CV_FOURCC('M','J','P','G'),40,Size(640,480));
-
+	
 	while( c != 27 )
 	{
 		time_for_loop = (double)cvGetTickCount();
-
-		time_for_cap = (double)cvGetTickCount();
 
 		// getting image from camera
 		stat = xiGetImage(xiH, 1000, &image);
 		HandleResult(stat,"xiGetImage");
 		src_image.data = (uchar*)image.bp;
 
-	//	cap >> src_image;
-		time_for_cap = ((double)cvGetTickCount() - time_for_cap)/(1000.0*(double)cvGetTickFrequency());
-		
-		time_for_resize = (double)cvGetTickCount();
-		resize(src_image,dst,Size(640,480));
-		time_for_resize = ((double)cvGetTickCount() - time_for_resize)/(1000.0*(double)cvGetTickFrequency());
+//		cap >> src_image;
+
+//		resize(src_image,dst,Size(640,480));
+		src_image.copyTo(dst);
 		
 		if(f==1)
 		{
-//			time_for_warp = (double)cvGetTickCount();
 //			warp = perspectiveArena(warp_mat,dst);
 //			warp = dst(Rect(pts[0],pts[2]));
 //			warp = dst;
 			dst.copyTo(warp);
-//			time_for_warp = ((double)cvGetTickCount() - time_for_warp)/(1000.0*(double)cvGetTickFrequency());
-			
-			time_for_init= (double)cvGetTickCount();
-
 			oball.init(warp);
-			time_for_init = ((double)cvGetTickCount() - time_for_init)/(1000.0*(double)cvGetTickFrequency());
 		}
 		else if(f==0)
 		{
@@ -196,23 +180,21 @@ int main(int argc,char** argv)
 			destroyAllWindows();
 		}
 
-//		warp.convertTo(warp,CV_8UC3,255);
+		destinations[0] = oball.center; //for ball
 
-
-		if(count_of_dest == no_of_dest)
+		ball_with_bot = bot.ball_with_bot_func(oball.center);
+		cout<<"ball bot : "<<ball_with_bot<<"\t";
+		
+		if(count_of_dest == no_of_dest || ball_with_bot == 0)
 			count_of_dest = 0;
+			
 		bot.dst_point = destinations[count_of_dest];
-//Aby
-//		bot.dst_point = destinations[0];
 
-		time_for_cvt = (double)cvGetTickCount();
 		cvtColor(warp, dst, CV_BGR2HSV);
-		time_for_cvt = ((double)cvGetTickCount() - time_for_cvt)/(1000.0*(double)cvGetTickFrequency());
 
-//		time_for_bot = (double)cvGetTickCount();
 		bot.update();
-//		time_for_bot = ((double)cvGetTickCount() - time_for_bot)/(1000.0*(double)cvGetTickFrequency());
-		bot.bot_angle -= 270; //TODO:Ask Hari to fix 90 deg offset
+		
+
 		cout<<"Distance :"<<bot.distance<<'\t';
 		cout<<"Angle :"<<bot.bot_angle<<'\t';
 //		if(bot.bot_angle>0)
@@ -221,7 +203,8 @@ int main(int argc,char** argv)
 				bot.bot_angle = bot.bot_angle-360;
 			}
 			angle_buffer=bot.bot_angle;
-			cout<<"count : "<<count_of_dest<<"\t";
+
+//			cout<<"count : "<<count_of_dest<<"\t";
 //			movement(0,socket, bot.bot_angle,0,bot.distance,integral_error,flag_movt,prev_error,velocity,2,tol);
 //			send_command(command);
 //			if(bot.distance>40){
@@ -230,17 +213,27 @@ int main(int argc,char** argv)
 //			turn(0,socket,bot.bot_angle,0,integral_error);
 //			cout<<"turn"<<endl;
 //			}
-			if((bot.distance>tol)) 
+			
+			cout<<"count  "<<count_of_dest<<"\t";
+
+			if(charf == 'p')
+			{
+				cin>>charf;
+				continue;
+			}
+			if(charf =='a'){
+			
+			if(bot.distance>tol)
 			{//tol is the tolerance :P
-				movement(0,socket, bot.bot_angle,0,bot.distance,integral_error,flag_movt,prev_error,velocity,0,tol);
-////				stop=count_of_dest;
-////				movement(0,socket, bot.bot_angle,0,bot.distance,integral_error,flag_movt,prev_error,velocity,stop,tol);
-////			}
-////            else if(stop==2)
-////            {
-////                // Stopping the motors
-////                tol=0;             // TODO Incorporate tol in the movement code
-////				movement(0,socket, bot.bot_angle,0,bot.distance,integral_error,flag_movt,prev_error,velocity,stop,tol);
+				movement(0,socket, bot.bot_angle,0,bot.distance,integral_error,flag_movt,prev_error,velocity,0,tol,ball_with_bot);
+//				stop=count_of_dest;
+//				movement(0,socket, bot.bot_angle,0,bot.distance,integral_error,flag_movt,prev_error,velocity,stop,tol);
+//			}
+//            else if(stop==2)
+//            {
+//                // Stopping the motors
+//                tol=0;             // TODO Incorporate tol in the movement code
+//				movement(0,socket, bot.bot_angle,0,bot.distance,integral_error,flag_movt,prev_error,velocity,stop,tol);
 			}
 			
 			else
@@ -251,14 +244,17 @@ int main(int argc,char** argv)
 //        		command[3] = 's';
 //        		send_command(command);
 				integral_error[0] = 0;
-////				integral_error[1] = 0;
-////				integral_error[2] = 0;
-////				turn_flag=0;
-////				integral_error[3] = 0;
-////				integral_error[4] = 0;
+//				integral_error[1] = 0;
+//				integral_error[2] = 0;
+//				turn_flag=0;
+//				integral_error[3] = 0;
+//				integral_error[4] = 0;
 				if(count_of_dest<no_of_dest)
 					count_of_dest++;
 			}
+			}
+	
+
 ////Aby
 
 
@@ -272,48 +268,49 @@ int main(int argc,char** argv)
 
 		
 //		time_for_rect= (double)cvGetTickCount();
+
 		rectangle(warp,Point(bot.bot_center.x-15,bot.bot_center.y-15),Point(bot.bot_center.x+15,bot.bot_center.y+15), Scalar(0,0,255));
+		rectangle(warp,oball.bounding_box,Scalar(0,0,255));
+		circle(warp,oball.center,3,Scalar(255,255,255),-1);
 		for(int i =0; i<no_of_dest;i++){
-			circle(warp,Point(destinations[i].x,destinations[i].y),3,Scalar(255,255,255),-1);
-			circle(warp,Point(destinations[i].x,destinations[i].y),tol,Scalar(255,255,255),1);}
-//		circle(warp,Point(destinations[0].x,destinations[0].y),45,Scalar(255,255,255),1);
-//		circle(warp,Point(destinations[1].x,destinations[1].y),3,Scalar(255,255,255),-1);
-//		circle(warp,Point(destinations[1].x,destinations[1].y),15,Scalar(255,255,255),1);
-//		circle(warp,Point(destinations[2].x,destinations[2].y),3,Scalar(255,255,255),-1);
-//		circle(warp,Point(destinations[2].x,destinations[2].y),15,Scalar(255,255,255),1);
-//		circle(warp,Point(destinations[3].x,destinations[3].y),3,Scalar(255,255,255),-1);
-//		circle(warp,Point(destinations[3].x,destinations[3].y),40,Scalar(255,255,255),1);
+			circle(warp,destinations[i],3,Scalar(255,255,255),-1);
+			circle(warp,destinations[i],tol,Scalar(255,255,255),1);
+		}
+
 		circle(warp,Point(destinations[count_of_dest].x,destinations[count_of_dest].y),3,Scalar(0,0,255),-1);
 		circle(warp,Point(destinations[count_of_dest].x,destinations[count_of_dest].y),40,Scalar(0,0,255),1);
-//Aby
-//		time_for_rect = ((double)cvGetTickCount() - time_for_rect)/(1000.0*(double)cvGetTickFrequency());
-//		rectangle(warp,oball.bounding_box,Scalar(0,0,255));
 		
-//		time_for_imshow = (double)cvGetTickCount();
+//		float D,R,temp_angle;
+//		Point circle_center;
+//		
+//		D = sqrt(pow(bot.bot_center.x-destinations[0].x,2)+pow(bot.bot_center.y-destinations[0].y,2));
+//		cout<<"D : "<<D<<"\n";
+//		R = D/(2*sin(bot.bot_angle*CV_PI/180.0));
+//		cout<<"R : "<<R<<"\n";
+//		if(bot.bot_angle>0)
+//		{
+//			temp_angle = bot.bot_angle - 90;
+//			circle_center.x = bot.bot_center.x - R*sin(temp_angle*CV_PI/180.0);
+//			circle_center.y = bot.bot_center.y - R*cos(temp_angle*CV_PI/180.0);
+//		}
+//		else
+//		{
+//			temp_angle = bot.bot_angle + 90;
+//			circle_center.x = bot.bot_center.x + R*sin(temp_angle*CV_PI/180.0);
+//			circle_center.y = bot.bot_center.y + R*cos(temp_angle*CV_PI/180.0);
+//		}
+//		
+//		circle(warp,circle_center,3,Scalar(255,0,0),-1);
+		
+		
 		imshow("warp",warp);
-//		time_for_imshow = ((double)cvGetTickCount() - time_for_imshow)/(1000.0*(double)cvGetTickFrequency());
-
-//		time_for_loop = ((double)cvGetTickCount() - time_for_loop)/(1000.0*(double)cvGetTickFrequency());
-		
-//		printf("\nTime for cap : %lf\n",(double)time_for_cap);
-//		printf("\nTime for resize : %lf\n",(double)time_for_resize);
-//		printf("\nTime for warp : %lf\n",(double)time_for_warp);
-//		printf("\nTime for init : %lf\n",(double)time_for_init);
-//		printf("\nTime for bot : %lf\n",(double)time_for_bot);
-//		printf("\nTime for imshow : %lf\n",(double)time_for_imshow);
-//		printf("\nTime for cvt : %lf\n",(double)time_for_cvt);
-//		printf("\nTime for rect : %lf\n",(double)time_for_rect);
-		
-//		out << warp;
-//		cout<<bot.bot_angle<<endl;
 	
 		time_for_loop = ((double)cvGetTickCount() - time_for_loop)/(1000.0*(double)cvGetTickFrequency());
-//		printf("\nTime for loop : %lf\n",(double)time_for_loop);
 		
 //		movement(0,socket, bot.bot_angle-180,0,20,integral_error, velocity);
 		
-//		out << warp;
 		c = waitKey(1);
+		cout<<"\n";
 		
 		if(c==27)
 			break;
