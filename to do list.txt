@@ -1,0 +1,22 @@
+To do
+1. Deceleration must have a multiplier+reverse applied carefully.....To be done properly
+2. Bot test and calibration......
+3. Movable point.................
+
+Done:
+1. Approx passing through a point
+
+Left:
+1. Get Kp, Kd velocity=30
+2. Find out why the overshoot while travelling from point 2 to point 3 is so much?
+3. Fix it.
+4. Find a better fix for the tol in stop=2;
+
+
+
+ALgo:
+
+Once the ball in our hands, accelerate
+Atul to work on the ball holder. Castor fitting. Camera hold.
+Smooth curve tangential curve?
+
