@@ -5,23 +5,21 @@ inline double distance( CvPoint pt1, CvPoint pt2 ){
 }
 
 
-RotatedRect largest_contour(Mat image,int &counter)
+RotatedRect largest_contour(Mat img,int &counter)
 {
     vector<vector<Point> > contours;
 
     vector<Vec4i> hierarchy;
 
-    Mat temp = Mat(image.cols,image.rows,CV_8UC1);
+    Mat temp = Mat(img.cols,img.rows,CV_8UC1);
 
-    Mat display = Mat::zeros(temp.cols,temp.rows,CV_8UC3);
-
-    if(image.channels()==3)
+    if(img.channels()==3)
     {
-        cvtColor(image,temp,CV_BGR2GRAY);
+        cvtColor(img,temp,CV_BGR2GRAY);
     }
-    else if(image.channels()==1)
+    else if(img.channels()==1)
     {
-        image.copyTo(temp);
+        img.copyTo(temp);
     }
 
 
@@ -35,7 +33,6 @@ RotatedRect largest_contour(Mat image,int &counter)
 
         if(contourArea(contours[i])>50&&contourArea(contours[i])<600) //constraints on size
         {
-            //rectangle(display,boundrect[i].tl(),boundrect[i].br(),Scalar(255,0,0));
             counter++;
             pos = i;
             if(contourArea(contours[i])>maxarea)
@@ -59,24 +56,21 @@ RotatedRect largest_contour(Mat image,int &counter)
 }
 
 
-RotatedRect closest_contour(Mat image,Point closest_to,int flag=0)
+RotatedRect closest_contour(Mat img,Point closest_to,int flag)
 {
     vector< vector<Point> > contours;
 
     vector<Vec4i> hierarchy;
 
-    Mat temp = Mat(image.cols,image.rows,CV_8UC1);
+    Mat temp = Mat(img.cols,img.rows,CV_8UC1);
 
-    Mat display = Mat::zeros(temp.cols,temp.rows,CV_8UC3);
-
-
-    if(image.channels()==3)
+    if(img.channels()==3)
     {
-        cvtColor(image,temp,CV_BGR2GRAY);
+        cvtColor(img,temp,CV_BGR2GRAY);
     }
-    else if(image.channels()==1)
+    else if(img.channels()==1)
     {
-        image.copyTo(temp);
+        img.copyTo(temp);
     }
 
     findContours(temp,contours,hierarchy,CV_RETR_CCOMP,CV_CHAIN_APPROX_NONE);
@@ -111,27 +105,23 @@ RotatedRect closest_contour(Mat image,Point closest_to,int flag=0)
         return RotatedRect();
 }
 
-
-vector <RotatedRect> all_contours(Mat image,vector <int> &Area, int flag=0)
+vector <RotatedRect> all_contours(Mat img,vector <int> &Area, int flag)
 {
     vector<vector<Point> > contours;
 
     vector<Vec4i> hierarchy;
 
-    Mat temp = Mat(image.cols,image.rows,CV_8UC1);
+    Mat temp = Mat(img.cols,img.rows,CV_8UC1);
 
-    Mat display = Mat::zeros(temp.cols,temp.rows,CV_8UC3);
-
-
-    if(image.channels()==3)
+    if(img.channels()==3)
     {
-        cvtColor(image,temp,CV_BGR2GRAY);
+        cvtColor(img,temp,CV_BGR2GRAY);
     }
-    else if(image.channels()==1)
+    else if(img.channels()==1)
     {
-        image.copyTo(temp);
+        img.copyTo(temp);
     }
-
+    
     findContours(temp,contours,hierarchy,CV_RETR_CCOMP,CV_CHAIN_APPROX_NONE);
 
     int i=0,counter=0,pos=-1,posarea=-1;

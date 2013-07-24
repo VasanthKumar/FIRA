@@ -1,29 +1,11 @@
-#pragma once
-#include <cv.h>
-#include <highgui.h>
-#include <vector>
-
-#include "global_var.h"
-#include "colors.h"
-#include "contours.h"
 #include "our_bot.h"
-#include "update_frame.h"
-#include "main.h"
 
-using namespace cv;
-using namespace std;
-
-extern Point arena_center;
 //our_bot::dst_point = cv::Point(640,0);
-
-inline double distanc( Point2f pt1, Point2f pt2 ){
-    return ( sqrt( ( pt1.x - pt2.x ) * ( pt1.x - pt2.x ) + ( pt1.y - pt2.y ) * ( pt1.y - pt2.y ) ) );
-}
 
 bool our_bot::ball_with_bot_func(Point ball_pos)
 {
 	double dist = distanc(ball_pos,back_center);
-	cout<<"dist :"<<dist<<"\t";
+//	cout<<"dist :"<<dist<<"\t";
 //	cout<<"  "<<ball_pos.x<<"  "<<bot_pos.x<<"\t";
 	if(dist<23)
 		return true;
@@ -31,104 +13,13 @@ bool our_bot::ball_with_bot_func(Point ball_pos)
 		return false;
 }
 
-
-void limit_location_within_arena( Rect &location ){	
-
-    if( location.x < 0 )
-        location.x = 0;
-
-    if( location.y < 0)
-        location.y = 0;
-
-    if( location.width + location.x > 640 )
-        location.width = 640 - location.x;
-
-    if( location.height + location.y > 480 )
-        location.height = 480 - location.y;
-}
-
-void update_location( Rect &location, Point center ){
-    //    cout<<"center = "<<center.x<<' '<<center.y<<endl;
-    location = Rect( center.x - BOUND_RECT, center.y - BOUND_RECT, 2 * BOUND_RECT, 2 * BOUND_RECT );
-}
-
-void expand_location( Rect &location ){
-    location = Rect( location.x - BOUND_RECT, location.y - BOUND_RECT, location.width + 2 * BOUND_RECT, location.height + 2 * BOUND_RECT );
-}
-
-
-int angl( Point2f pt1, Point2f cen, Point2f pt2 ){
-
-    // cross product calculation
-    float a = ( float )( ( pt2.x - cen.x ) * ( pt1.y - cen.y ) - ( pt1.x - cen.x ) * ( pt2.y - cen.y ) );
-    float b = ( float )( distanc( cen, pt1 ) * distanc( cen, pt2 ) );
-    float sin_inv;
-    float angle = 1000;
-
-    float dot =(pt2.x - cen.x ) * ( pt1.x - cen.x ) +
-        (pt2.y - cen.y) * (pt1.y - cen.y);
-
-    if( b != 0 ){
-        sin_inv = asin( a / b ) * 180 / PI;
-        
-        if( dot < 0 ){
-            if ( sin_inv > 0 )
-                angle = 180 - sin_inv;
-            else
-                angle = -180 - sin_inv;
-        }
-        else if( dot > 0 || dot == 0 && sin_inv != 0 ){
-            angle = sin_inv;
-        }
-        else
-            cout << "<" << endl;
-    }
-    return angle;
-    
-}
-
-//int angl( Point2f dst, Point2f cen, Point2f front ){
-
-//	float a = ( float )( ( dst.x - cen.x ) * ( front.y - cen.y ) - ( front.x - cen.x ) * ( dst.y - cen.y ) );  //angle through cross product.
-//    float b = ( float )( distanc( cen, dst ) * distanc( cen, front ) );
-//    float result = 0;
-//    float angle = 1000;
-
-//    if( b != 0 ){
-//        result = asin( a / b );
-
-//    if(distanc( cen, dst ) > distanc( front, dst ) ){
-//            angle = ( ( result * 90 / 1.57 ) );
-//        }
-//        else if( result > 0 ){
-//            angle= ( ( 180 - result * 90 / 1.57 ) );
-//        }
-//       else if( result < 0 ){
-//            angle = ( -180 - result * 90 / 1.57 );
-//        }
-//        }
-//    if( angle == 1000 ){
-//        if( front.y > cen.y )
-//            angle = 180;
-//        else if( cen.y > front.y )
-//            angle = 0;
-//        else
-//            cout << "<" << endl;
-//    }
-////    cout<<"A :"<<angle<<"\n";
-//    return angle;
-//}
-
-
 our_bot::our_bot(){
     x = 0, y = 0, angle = 0;
     mask = new Mat[3];
-    location = Rect(arena_center.x - BOUND_RECT, arena_center.y - BOUND_RECT,
-            2* BOUND_RECT, 2 * BOUND_RECT);
-    mask[0] = Mat( Size(640,480), CV_8UC1 );
-    mask[1] = Mat( Size(640,480), CV_8UC1 );
-    mask[2] = Mat( Size(640,480), CV_8UC1 );
-}	
+    mask[0] = Mat( Size(image.cols,image.rows), CV_8UC1 );
+    mask[1] = Mat( Size(image.cols,image.rows), CV_8UC1 );
+    mask[2] = Mat( Size(image.cols,image.rows), CV_8UC1 );
+}
 
 our_bot::~our_bot(){
     mask[0].release();
@@ -151,8 +42,6 @@ double our_bot::pos(){
 	bot_pos.y = y;
 //	printf("botx=%f boty=%f\n",x,y);
 
-
-	cout<<"Pos : "<<back_center.x<<"  "<<back_center.y<<"\t";
 }
 
 double our_bot::orientation(){
@@ -221,26 +110,29 @@ void our_bot::FindCenter(){
 }
 
 void our_bot::update(){
-    Mat gray_mask[3];
 
-    gray_mask[0] = dst(location);
-    gray_mask[1] = dst(location);
-    gray_mask[2] = dst(location);
+    Mat roi_image;
+    roi_image = image(location);
 
-    mask[0] = Mat::zeros(gray_mask[0].rows,gray_mask[0].cols,CV_8UC1);
-    mask[1] = Mat::zeros(gray_mask[1].rows,gray_mask[1].cols,CV_8UC1);
-    mask[2] = Mat::zeros(gray_mask[2].rows,gray_mask[2].cols,CV_8UC1);
+    GaussianBlur( roi_image, roi_image, Size( 3, 3 ), 0, 0 );
+    
+    cvtColor(roi_image, roi_image, CV_BGR2HSV);
+    
+    mask[0] = Mat::zeros(roi_image.rows,roi_image.cols,CV_8UC1);
+    mask[1] = Mat::zeros(roi_image.rows,roi_image.cols,CV_8UC1);
+    mask[2] = Mat::zeros(roi_image.rows,roi_image.cols,CV_8UC1);
 
-    //    cout<<"before pickcolor\n";
-    pick_color( gray_mask[0],mask[0], basecolor );
-    pick_color( gray_mask[1],mask[1], lcolor );
-    pick_color( gray_mask[2],mask[2], rcolor );
-
-	imshow("yellow",mask[0]);
-	imshow("pink",mask[1]);
-	imshow("green",mask[2]);
-//	cout<<"color found\n";
+    pick_color( roi_image,mask[0], basecolor );
+    pick_color( roi_image,mask[1], lcolor );
+    pick_color( roi_image,mask[2], rcolor );
+    
+	imshow("base",mask[0]);
+	imshow("left",mask[1]);
+	imshow("right",mask[2]);
+    
     FindCenter();
+    
+   cvtColor(roi_image, roi_image, CV_HSV2BGR);
 
     if( front_center.x != 0 && back_center.x != 0 ){
         //Taking care for the relative position changes due to ROI.

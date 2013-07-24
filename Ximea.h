@@ -17,10 +17,12 @@ class Ximea {
 	XI_RETURN stat;
     //image buffer
 	XI_IMG image;
-    void init_Ximea(int device = 0, int time_us = 10000, int binning_mode = 2, 
+    void init_Ximea(int device = 0, int time_us = 10000, int binning_mode = 1, 
     int buffer_queue_size = 3, int buffer_size = 20*1024*1024,
     int recent_frame = 0 );
-    Ximea(int device = 0) { xiH = NULL; stat = XI_OK; init_Ximea(device); }
+    Ximea();
+    Ximea( int device ) { xiH = NULL; stat = XI_OK; init_Ximea(device); }
+    void open( int device ) { xiH = NULL; stat = XI_OK; init_Ximea(device); }
     Mat operator >> (Mat &src_image);
     int get(int param);
 };

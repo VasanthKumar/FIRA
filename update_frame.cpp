@@ -1,41 +1,48 @@
-#pragma once
-#include <boost/thread/thread.hpp>
-#include <highgui.h>
-#include <cv.h>
-#include <math.h>
-#include <SerialStream.h>
+#include "update_frame.h"
 
-#include "process_image.h"
-#include "our_bot.h"
-#include "opp_bot.h"
-#include "global_var.h"
-#include "ball.h"
+#ifdef Camera
+    Ximea cap;
+#else
+    VideoCapture cap;
+#endif
 
-using namespace cv;
-using namespace std;
+Mat image;
+Point arena_center;
+char c;
 
+void init_image( bool load_pts_file) {
+    image = Mat::zeros(cap.get(4),cap.get(3),CV_8UC3);
+    arena_center = Point(image.cols/2,image.rows/2);
+    bot[0].location = Rect(arena_center.x - BOUND_RECT, arena_center.y - BOUND_RECT,
+            2* BOUND_RECT, 2 * BOUND_RECT);
 
-void update_location( Rect &location, Point center ){
-    location = Rect( center.x - BOUND_RECT, center.y - BOUND_RECT, 2 * BOUND_RECT, 2 * BOUND_RECT );
-}
+    Mat image_mat;
+    Point2f* pts;
+    pts = new Point2f [4];
 
-void expand_location( Rect &location ){
-    location = Rect( location.x - BOUND_RECT, location.y - BOUND_RECT, location.width + 2 * BOUND_RECT, location.height + 2 * BOUND_RECT );
-}
+    FILE *pFile;
+    if(load_pts_file) {
+        pFile = fopen("arena_pts.txt", "r");
+        for( int m = 0; m < 4; m++ ) {
+            fscanf(pFile, "%f %f\n", &pts[m].x, &pts[m].y);
+        }
+    }
+    else
+    {
+        cap >> image;
+        pts = selectPoint(image);
+        pFile = fopen("arena_pts.txt", "w+");
+        for( int m = 0; m < 4 ; m++) {
+            fprintf(pFile, "%d %d\n", int(pts[m].x), int(pts[m].y));
+        } 
+        cout << "file writing complete" << endl;
+    }
 
-void limit_location_within_arena( Rect &location ){	
-
-    if( location.x < goal_rect.x )
-        location.x = goal_rect.x;
-
-    if( location.y < pitch.y)
-        location.y = pitch.y;
-
-    if( location.width + location.x > pitch.x + pitch.width )
-        location.width = pitch.x + pitch.width - location.x;
-
-    if( location.height + location.y > pitch.y + pitch.height )
-        location.height = pitch.y + pitch.height - location.y;
+    fclose(pFile);
+    cout << "starting image perspective" << endl;
+    image_mat=getTransformMat(pts);
+    cout << "Done getting transform matrix" << endl;
+    destroyAllWindows();
 
 }
 
@@ -50,67 +57,65 @@ void update_opp_bot()
     for( int i=0;i < NUM_OF_OPP_BOTS;i++)
         o_bot[i].update();
 }
+
 void updateframe(){
+    double time_for_loop = (double)cvGetTickCount();
 
-    img = cvQueryFrame( capture );
+    // getting image from camera
+    cap >> image;
+    //image = perspectiveArena(image_mat,dst);
 
-    int i;
+    cout << "cam image = " << ((double)cvGetTickCount() -
+            time_for_loop)/(1000.0*(double)cvGetTickFrequency()) << '\t';
 
-    for(i=0;i<NUM_OF_OPP_BOTS;i++) {
-        cvSetImageROI(img,o_bot[i].location);
-        cvSetImageROI(hsv,o_bot[i].location);
-        cvCvtColor( img, hsv, CV_BGR2HSV );
-        cvResetImageROI(img);
-        cvResetImageROI(hsv);
+    double time_bot_update = (double)cvGetTickCount();
+
+    bot[0].update();
+    //o_bot[0].update();
+
+    time_bot_update = ((double)cvGetTickCount() - time_bot_update)/(1000.0*(double)cvGetTickFrequency());
+    cout << "bot update = " << time_bot_update << '\t';
+
+    double ball_detection_time = (double)cvGetTickCount();
+    oball.init(image);
+
+    cout << "ball detection time image = " << ((double)cvGetTickCount() -
+            ball_detection_time)/(1000.0*(double)cvGetTickFrequency()) << '\t';
+}
+
+void display() {
+
+    for( int i=0;i < NUM_OF_OPP_BOTS;i++) {
+        rectangle(image,Point(bot[i].bot_center.x-15,bot[i].bot_center.y-15),
+                Point(bot[i].bot_center.x+15,bot[i].bot_center.y+15), Scalar(0,0,255));
     }
 
-    boost::thread our_bot_thread(update_opp_bot); 
+    for( int i=0;i < NUM_OF_OPP_BOTS;i++) {
+        rectangle(image,Point(o_bot[i].center.x-15,o_bot[i].center.y-15),
+                Point(o_bot[i].center.x+15,o_bot[i].center.y+15),Scalar(255,0,0));
+    }
+    circle( image, arena_center, 10, CV_RGB( 180, 180, 255 ), -1, 8, 0 );
 
-    for(i=0;i<NUM_OF_OUR_BOTS;i++) {
-        cvSetImageROI(img,bot[i].location);
-        cvSetImageROI(hsv,bot[i].location);
-        cvCvtColor( img, hsv, CV_BGR2HSV );
-        cvResetImageROI(img);
-        cvResetImageROI(hsv);
-        bot[i].update();
+    for( int i = 0; i < NUM_OF_OUR_BOTS; i++ ){
+        circle( image, bot[i].front_center, 5, CV_RGB( 255, 0, 0 ), -1, 8, 0 );
+        circle( image, bot[i].back_center, 2, CV_RGB( 255, 255, 255 ), -1, 8, 0 );
+        line( image, bot[i].front_center, bot[i].back_center,
+                CV_RGB( 255, 255, 255 ), 2, 8, 0);
+        rectangle( image, Point( bot[i].location.x, bot[i].location.y ),
+                Point( bot[i].location.x + bot[i].location.width, bot[i].location.y + bot[i].location.height ),
+                Scalar( 255, 0, 0, 0 ), 1, 4, 0 );
     }
 
-    cvSetImageROI(img,Ball.location);
-    cvSetImageROI(hsv,Ball.location);
-    cvCvtColor( img, hsv, CV_BGR2HSV );
-    cvResetImageROI(img);
-    cvResetImageROI(hsv);
-    Ball.update();
-
-    our_bot_thread.join(); 
-
-    //boost::thread ogl_thread(DrawScene); 
-    //DrawScene();
-
-    //Not rendering all the frames to decrease the code execution time.
-    if( FrameCount % 5 == 0 )
-    {
-        cvCircle( img, Ball.center, Ball.location.width / 5, CV_RGB( 255, 0, 0 ), 1, 8, 0 );
-
-        cvCircle( img, arena_center, pitch.width / 10, CV_RGB( 180, 180, 255 ), 1, 8, 0 );
-
-        for( int i = 0; i < NUM_OF_OUR_BOTS; i++ ){
-            cvCircle( img, bot[i].bot_center, 2, CV_RGB( 255, 255, 255 ), -1, 8, 0 );
-            cvRectangle( img, cvPoint( bot[i].location.x, bot[i].location.y ),
-                    cvPoint( bot[i].location.x + bot[i].location.width, bot[i].location.y + bot[i].location.height ),
-                    cvScalar( 255, 0, 0, 0 ), 1, 4, 0 );
-        }
-
-        for( int i = 0; i < NUM_OF_OPP_BOTS; i++ ){
-            cvCircle( img, o_bot[i].center, 2, CV_RGB( 255, 255, 255 ), -1, 8, 0 );
-            cvRectangle( img, cvPoint( o_bot[i].location.x, o_bot[i].location.y ),
-                    cvPoint( o_bot[i].location.x + o_bot[i].location.width, o_bot[i].location.y + o_bot[i].location.height ),
-                    cvScalar( 0, 0, 255, 0 ), 1, 4, 0 );
-        }
-
-        //cvShowImage( "SAHAS", img);
-
-        //c = cvWaitKey( 1 );
-    //ogl_thread.join();
+    for( int i = 0; i < NUM_OF_OPP_BOTS; i++ ){
+        circle( image, o_bot[i].center, 5, CV_RGB( 255, 255, 255 ), -1, 8, 0 );
+        rectangle( image, Point( o_bot[i].location.x, o_bot[i].location.y ),
+                Point( o_bot[i].location.x + o_bot[i].location.width, o_bot[i].location.y + o_bot[i].location.height ),
+                Scalar( 0, 0, 255, 0 ), 1, 4, 0 );
     }
+
+    imshow("image",image);
+    
+    c = waitKey(1);
+    if(c == ' ')
+        c=waitKey(0);
 }

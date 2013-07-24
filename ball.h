@@ -28,4 +28,4 @@ struct ball{
 	
 };
 
-
+extern ball oball;

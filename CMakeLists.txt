@@ -7,7 +7,8 @@ project(main)
 FIND_PACKAGE(OpenCV REQUIRED)
 
 #set_source_files_properties(wifi.c PROPERTIES LANGUAGE CXX)
-add_library(fira arena.cpp ball.cpp colors.cpp contours.cpp our_bot.cpp wifi.c motion.cpp Ximea.cpp)
+add_library(fira arena.cpp ball.cpp colors.cpp contours.cpp our_bot.cpp
+        update_frame.cpp opp_bot.cpp geometry.cpp wifi.c motion.cpp Ximea.cpp)
 
 ADD_EXECUTABLE(${PROJECT_NAME} main.cpp)
 

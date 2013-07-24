@@ -1,5 +1,9 @@
 #include "Ximea.h"
 
+Ximea::Ximea() {
+
+}
+
 void Ximea::init_Ximea(int device, int time_us, int binning_mode, 
     int buffer_queue_size, int buffer_size,
     int recent_frame ) {
@@ -35,6 +39,7 @@ void Ximea::init_Ximea(int device, int time_us, int binning_mode,
 }
 
 Mat Ximea::operator >> ( Mat & src_image ) {
+        
 		stat = xiGetImage(xiH, 1000, &image);
 		HandleResult(stat,"xiGetImage");
 		src_image.data = (uchar*)image.bp;

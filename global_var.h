@@ -1,6 +1,16 @@
 #pragma once
 #include <cv.h>
-#include <highgui.h>
+#include "Ximea.h"
+
+using namespace cv;
+
+//#define Camera 1
+
+#ifdef Camera
+    extern Ximea cap;
+#else
+    extern VideoCapture cap;
+#endif
 
 //#define THRESH_AREA 5
 #define THRESH_AREA 5        //without boundaries
@@ -12,9 +22,9 @@
 
 #define OPP_JERSEY_COLOR 'y'
 
-#define NUM_OF_OUR_BOTS 0
+#define NUM_OF_OUR_BOTS 1
 
-#define NUM_OF_OPP_BOTS 0
+#define NUM_OF_OPP_BOTS 1
 
 #define BOT0_BASECOLOR 'g'
 #define BOT0_LCOLOR OUR_JERSEY_COLOR
@@ -36,9 +46,7 @@
 #define BOT4_LCOLOR 'g'
 #define BOT4_RCOLOR OUR_JERSEY_COLOR
 
-
-
-#define BOUND_RECT 30
+#define BOUND_RECT 50
 #define BOT_WIDTH 20
 
 #define ARENA_LENGTH    220
@@ -55,12 +63,8 @@
     y-axis - upwards from the center (+ve)
     angle  - starts from the +ve x-axis and increases anticlockwise (0-360).
   ********************/
-//extern CvRect goal_rect;
-//extern CvPoint arena_center;
-//extern CvRect pitch;
-//extern char c;
-//extern CvCapture *capture;
-//extern IplImage *img;
-//extern IplImage *hsv;
-//extern CvSeq* contours, *finalcon;
-//extern int FrameCount; 
+
+extern Point arena_center;
+
+extern char c;
+extern Mat image;

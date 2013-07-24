@@ -1,66 +1,55 @@
-#pragma once
-#include <cv.h>
-#include <highgui.h>
-
-#include "global_var.h"
 #include "opp_bot.h"
-#include "update_frame.h"
-#include "colors.h"
-#include "contours.h"
-
-using namespace  cv;
-using namespace std;
 
 int opp_bot::total_no_of_objects;
-
-opp_bot o_bot[5];
 
 opp_bot::opp_bot(){
     OBJECT_NUM = total_no_of_objects++;
     color = OPP_JERSEY_COLOR;
     center = Point( 0, 0 );
-    location = Rect( 0, 0, 0, 0 );
-    capture >> img;
-   // cvShowImage("test",img);
-    mask = Mat( Size(640,480), CV_8UC1 );
+    location = Rect(arena_center.x - BOUND_RECT, arena_center.y - BOUND_RECT,
+            2* BOUND_RECT, 2 * BOUND_RECT);
+    mask = Mat( Size(image.cols, image.rows), CV_8UC1 );
 }
 
-
-void opp_bot::FindCenter( Point &cen ){	
+void opp_bot::FindCenter(){	
     vector <int> area;
-    vector <Point> vector_cen = FindAllCenter( mask, area );
-    cen = Point ( 0, 0 );
+    vector <RotatedRect> opp_jersey_rrect = all_contours( mask, area, 0 );
+    center = Point ( 0, 0 );
     int count = 0;
 
-    for( int i = 0 ; i < vector_cen.size() ; i++ ){
+    for( int i = 0 ; i < opp_jersey_rrect.size() ; i++ ){
         count = 0;
         for( int j = 0 ; j < OBJECT_NUM ; j++ ){
-            if( (vector_cen[i].x + this->location.x != o_bot[j].center.x) || (vector_cen[i].y + this->location.y != o_bot[j].center.y)){
+            if( (opp_jersey_rrect[i].center.x + this->location.x != o_bot[j].center.x) || 
+                    (opp_jersey_rrect[i].center.y + this->location.y != o_bot[j].center.y)){
                 count++;
             }
         }
         if( count == OBJECT_NUM ){
-            cen = vector_cen[i];
+            center = opp_jersey_rrect[i].center;
             break;
         }
     }
-
 }
 
-
 void opp_bot::update(){
-    Point cen;
-	Mat mask_roi=mask(location);
-//    cvSetImageROI( mask, location );
     
-    pick_basecolor( mask_roi, location, color );
-    FindCenter( cen );
-//    cvResetImageROI( mask );
-	mask_roi.release();
+    Mat mask_roi = image(location);
+    
+    TermCriteria tc = TermCriteria(CV_TERMCRIT_ITER, 2, 0);
+    pyrMeanShiftFiltering( mask_roi, mask_roi, 2, 20, 1, tc);
+    cvtColor(mask_roi, mask_roi, CV_BGR2HSV); 
+    
+    mask = Mat::zeros(mask_roi.rows,mask_roi.cols,CV_8UC1);
+    
+    pick_color( mask_roi, mask, color );
+    imshow("opp bot mask", mask);
+    FindCenter();
+    
+    cvtColor(mask_roi, mask_roi, CV_HSV2BGR);
 
-    if( cen.x != 0 ){
-        cen = Point( cen.x + location.x, cen.y + location.y );
-        center = cen;
+    if( center.x != 0 ){
+        center = Point( center.x + location.x, center.y + location.y );
         update_location( location, center );
     }
     else{
@@ -70,5 +59,3 @@ void opp_bot::update(){
     limit_location_within_arena( location );
 
 }
-
-

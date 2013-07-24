@@ -1,7 +1,13 @@
+#pragma once
 #include <cv.h>
 #include <highgui.h>
 
-using namespace cv;
+#include "global_var.h"
+#include "colors.h"
+#include "contours.h"
+#include "geometry.h"
+
+using namespace  cv;
 using namespace std;
 
 class opp_bot{
@@ -12,10 +18,9 @@ class opp_bot{
         Point center;
         char color;
         void update();
-        void FindCenter(Point &cen);
+        void FindCenter();
         opp_bot();
         int OBJECT_NUM;
 };
 
-extern opp_bot o_bot[5];
-
+extern opp_bot o_bot[NUM_OF_OPP_BOTS];

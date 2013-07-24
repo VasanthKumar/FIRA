@@ -9,6 +9,6 @@ using namespace std;
 
 RotatedRect largest_contour(Mat image,int &counter);
 
-RotatedRect closest_contour(Mat image,Point closest_to,int flag);
+RotatedRect closest_contour(Mat image,Point closest_to,int flag = 0);
 
-vector <RotatedRect> all_contours(Mat image,vector <int> &,int flag);
+vector <RotatedRect> all_contours(Mat image,vector <int> &,int flag = 0);
