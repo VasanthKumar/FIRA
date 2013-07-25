@@ -4,7 +4,7 @@
 
 using namespace cv;
 
-//#define Camera 1
+#define Camera 1
 
 #ifdef Camera
     extern Ximea cap;
@@ -24,7 +24,7 @@ using namespace cv;
 
 #define NUM_OF_OUR_BOTS 1
 
-#define NUM_OF_OPP_BOTS 1
+#define NUM_OF_OPP_BOTS 0
 
 #define BOT0_BASECOLOR 'g'
 #define BOT0_LCOLOR OUR_JERSEY_COLOR
@@ -53,7 +53,7 @@ using namespace cv;
 #define ARENA_WIDTH     180
 #define GOAL_LENGTH     30
 #define GOAL_WIDTH      15
-#define BOT_LENGTH      18
+#define BOT_LENGTH      50
 #define BALL_DIAMETER   3
 #define PI              3.1415926535
 

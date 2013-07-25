@@ -61,9 +61,9 @@ int main(int argc,char** argv)
 
     int k = 0;
 
-    bot[0].basecolor = 'g';
-    bot[0].lcolor = 'v';
-    bot[0].rcolor = 'y';
+    bot[0].basecolor = 'y';
+    bot[0].lcolor = 'g';
+    bot[0].rcolor = 'v';
 
     o_bot[0].color = 'y';
     oball.color = 'o';

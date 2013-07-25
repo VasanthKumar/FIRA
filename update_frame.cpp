@@ -78,8 +78,8 @@ void updateframe(){
 
     double time_bot_update = (double)cvGetTickCount();
     
-//    update_our_bot();
-//    update_opp_bot();
+    update_our_bot();
+    update_opp_bot();
 
     time_bot_update = ((double)cvGetTickCount() - time_bot_update)/(1000.0*(double)cvGetTickFrequency());
     cout << "bot update = " << time_bot_update << '\t';

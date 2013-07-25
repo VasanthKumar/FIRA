@@ -90,10 +90,10 @@ void our_bot::FindCenter(){
             if( front_left.center.x != 0 && front_right.center.x !=0 ){
 
                 float angle_check =angl(front_right.center,BaseCenter[i].center,front_left.center); 
-                
-//                if( angle_check > 25 && angle_check < 80  &&
-//                        distanc(front_left.center,BaseCenter[i].center) < BOT_LENGTH && 
-//                        distanc(front_right.center,BaseCenter[i].center) < BOT_LENGTH )
+                cout << "angle check " << angle_check << endl;
+                if( angle_check > 40 && angle_check < 80  &&
+                        distanc(front_left.center,BaseCenter[i].center) < BOT_LENGTH && 
+                        distanc(front_right.center,BaseCenter[i].center) < BOT_LENGTH )
                 {
 //                	cout<<"finding centers\n";
                     back_center = BaseCenter[i].center;
