@@ -1,7 +1,7 @@
 #include "ball.h"
 
-#define WIDTH 640
-#define HEIGHT 480
+#define WIDTH 1280
+#define HEIGHT 1024
 #define DEPTH 3
 
 vector<vector<Point> > contours;

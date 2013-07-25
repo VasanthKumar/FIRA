@@ -25,7 +25,9 @@ int frame = 0;
 
 our_bot bot[NUM_OF_OUR_BOTS];
 opp_bot o_bot[NUM_OF_OPP_BOTS];
-ball oball = ball();
+//ball oball = ball();
+opp_bot oball;
+
 
 int main(int argc,char** argv)
 {
@@ -64,6 +66,7 @@ int main(int argc,char** argv)
     bot[0].rcolor = 'y';
 
     o_bot[0].color = 'y';
+    oball.color = 'o';
 
     int turn_flag=0;
 

@@ -13,7 +13,15 @@ char c;
 void init_image( bool load_pts_file) {
     image = Mat::zeros(cap.get(4),cap.get(3),CV_8UC3);
     arena_center = Point(image.cols/2,image.rows/2);
-    bot[0].location = Rect(arena_center.x - BOUND_RECT, arena_center.y - BOUND_RECT,
+    for(int i=0; i < NUM_OF_OUR_BOTS; i++) {
+        bot[i].location = Rect(arena_center.x - BOUND_RECT, arena_center.y - BOUND_RECT,
+            2* BOUND_RECT, 2 * BOUND_RECT);
+    }
+    for(int i=0; i < NUM_OF_OPP_BOTS; i++) {
+        o_bot[i].location = Rect(arena_center.x - BOUND_RECT, arena_center.y - BOUND_RECT,
+            2* BOUND_RECT, 2 * BOUND_RECT);
+    }
+        oball.location = Rect(arena_center.x - BOUND_RECT, arena_center.y - BOUND_RECT,
             2* BOUND_RECT, 2 * BOUND_RECT);
 
     Mat image_mat;
@@ -69,31 +77,21 @@ void updateframe(){
             time_for_loop)/(1000.0*(double)cvGetTickFrequency()) << '\t';
 
     double time_bot_update = (double)cvGetTickCount();
-
-    bot[0].update();
-    //o_bot[0].update();
+    
+//    update_our_bot();
+//    update_opp_bot();
 
     time_bot_update = ((double)cvGetTickCount() - time_bot_update)/(1000.0*(double)cvGetTickFrequency());
     cout << "bot update = " << time_bot_update << '\t';
 
     double ball_detection_time = (double)cvGetTickCount();
-    oball.init(image);
-
+    oball.update();
     cout << "ball detection time image = " << ((double)cvGetTickCount() -
             ball_detection_time)/(1000.0*(double)cvGetTickFrequency()) << '\t';
 }
 
 void display() {
 
-    for( int i=0;i < NUM_OF_OPP_BOTS;i++) {
-        rectangle(image,Point(bot[i].bot_center.x-15,bot[i].bot_center.y-15),
-                Point(bot[i].bot_center.x+15,bot[i].bot_center.y+15), Scalar(0,0,255));
-    }
-
-    for( int i=0;i < NUM_OF_OPP_BOTS;i++) {
-        rectangle(image,Point(o_bot[i].center.x-15,o_bot[i].center.y-15),
-                Point(o_bot[i].center.x+15,o_bot[i].center.y+15),Scalar(255,0,0));
-    }
     circle( image, arena_center, 10, CV_RGB( 180, 180, 255 ), -1, 8, 0 );
 
     for( int i = 0; i < NUM_OF_OUR_BOTS; i++ ){

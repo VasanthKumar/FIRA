@@ -24,3 +24,4 @@ class opp_bot{
 };
 
 extern opp_bot o_bot[NUM_OF_OPP_BOTS];
+extern opp_bot oball;

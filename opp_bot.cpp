@@ -36,8 +36,8 @@ void opp_bot::update(){
     
     Mat mask_roi = image(location);
     
-    TermCriteria tc = TermCriteria(CV_TERMCRIT_ITER, 2, 0);
-    pyrMeanShiftFiltering( mask_roi, mask_roi, 2, 20, 1, tc);
+    GaussianBlur( mask_roi, mask_roi, Size( 3, 3 ), 0, 0 );
+    
     cvtColor(mask_roi, mask_roi, CV_BGR2HSV); 
     
     mask = Mat::zeros(mask_roi.rows,mask_roi.cols,CV_8UC1);
