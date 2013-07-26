@@ -9,6 +9,7 @@
 Mat image;
 Point arena_center;
 char c;
+Mat image_mat;
 
 void init_image( bool load_pts_file) {
     image = Mat::zeros(cap.get(4),cap.get(3),CV_8UC3);
@@ -24,7 +25,6 @@ void init_image( bool load_pts_file) {
         oball.location = Rect(arena_center.x - BOUND_RECT, arena_center.y - BOUND_RECT,
             2* BOUND_RECT, 2 * BOUND_RECT);
 
-    Mat image_mat;
     Point2f* pts;
     pts = new Point2f [4];
 
@@ -51,6 +51,8 @@ void init_image( bool load_pts_file) {
     image_mat=getTransformMat(pts);
     cout << "Done getting transform matrix" << endl;
     destroyAllWindows();
+    
+    namedWindow("image", CV_WINDOW_NORMAL);
 
 }
 
@@ -71,7 +73,7 @@ void updateframe(){
 
     // getting image from camera
     cap >> image;
-    //image = perspectiveArena(image_mat,dst);
+    //image = perspectiveArena(image_mat,image);
 
     cout << "cam image = " << ((double)cvGetTickCount() -
             time_for_loop)/(1000.0*(double)cvGetTickFrequency()) << '\t';
@@ -85,7 +87,7 @@ void updateframe(){
     cout << "bot update = " << time_bot_update << '\t';
 
     double ball_detection_time = (double)cvGetTickCount();
-    oball.update();
+    //oball.update();
     cout << "ball detection time image = " << ((double)cvGetTickCount() -
             ball_detection_time)/(1000.0*(double)cvGetTickFrequency()) << '\t';
 }

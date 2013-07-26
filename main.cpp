@@ -81,7 +81,7 @@ int main(int argc,char** argv)
     //tcpWrite(socket,command);
 
 
-    //	VideoWriter out("ipfeedback.avi",CV_FOURCC('M','J','P','G'),40,Size(640,480));
+//    	VideoWriter out("ball prediction.avi",CV_FOURCC('M','J','P','G'),40, Size(1280,1024));
 
     //	int socket = init_wifi(9750,"122.38.0.151");
     //	char command[4]={'0','F','0','0'};
@@ -89,7 +89,6 @@ int main(int argc,char** argv)
 
     int prev_bot_angle = 0;
 
-    //	VideoWriter out("ipfeedback.avi",CV_FOURCC('M','J','P','G'),40,Size(640,480));
     while( c != 27 )
     {
         frame++;
@@ -105,6 +104,8 @@ int main(int argc,char** argv)
         bot[0].dst_point = destinations[count_of_dest];
 
         updateframe();
+
+//        out << image;
 
         circle(image,Point(destinations[count_of_dest].x,destinations[count_of_dest].y),3,Scalar(0,0,255),-1);
         circle(image,Point(destinations[count_of_dest].x,destinations[count_of_dest].y),40,Scalar(0,0,255),1);

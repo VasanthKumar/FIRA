@@ -214,8 +214,8 @@ Mat getTransformMat(Point2f* srcq )
 
 	dstQuad[0] = Point2f(192.0/5.0,0.0);
 	dstQuad[1] = Point2f(3008.0/5.0,0.0);
-	dstQuad[2] = Point2f(3008.0/5.0,480.0);
-	dstQuad[3] = Point2f(192.0/5.0,480.0);
+	dstQuad[2] = Point2f(3008.0/5.0,float(image.rows));
+	dstQuad[3] = Point2f(192.0/5.0,float(image.rows));
 	
 	warp_perspective= getPerspectiveTransform(srcQuad,dstQuad);
 	//warpPerspective(src, warped, warp_perspective, Size(640,480));
@@ -226,7 +226,7 @@ Mat getTransformMat(Point2f* srcq )
 Mat perspectiveArena(Mat warp_Mat, Mat src )
 {
 	Mat warped;
-	warpPerspective(src, warped, warp_Mat, Size(640,480));	
+	warpPerspective(src, warped, warp_Mat, Size(image.cols, image.rows));	
 	return warped;
 }
 

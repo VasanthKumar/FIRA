@@ -2,6 +2,7 @@
 #include <cv.h>
 #include <highgui.h>
 #include <iostream>
+#include "global_var.h"
 
 using namespace cv;
 using namespace std;

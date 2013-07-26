@@ -91,7 +91,7 @@ void our_bot::FindCenter(){
 
                 float angle_check =angl(front_right.center,BaseCenter[i].center,front_left.center); 
                 cout << "angle check " << angle_check << endl;
-                if( angle_check > 40 && angle_check < 80  &&
+                if( //angle_check > 40 && angle_check < 80  &&
                         distanc(front_left.center,BaseCenter[i].center) < BOT_LENGTH && 
                         distanc(front_right.center,BaseCenter[i].center) < BOT_LENGTH )
                 {
@@ -125,7 +125,7 @@ void our_bot::update(){
     pick_color( roi_image,mask[0], basecolor );
     pick_color( roi_image,mask[1], lcolor );
     pick_color( roi_image,mask[2], rcolor );
-    
+   
 	imshow("base",mask[0]);
 	imshow("left",mask[1]);
 	imshow("right",mask[2]);
