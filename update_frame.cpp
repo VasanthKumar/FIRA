@@ -15,15 +15,13 @@ void init_image( bool load_pts_file) {
     image = Mat::zeros(cap.get(4),cap.get(3),CV_8UC3);
     arena_center = Point(image.cols/2,image.rows/2);
     for(int i=0; i < NUM_OF_OUR_BOTS; i++) {
-        bot[i].location = Rect(arena_center.x - BOUND_RECT, arena_center.y - BOUND_RECT,
-            2* BOUND_RECT, 2 * BOUND_RECT);
+        bot[i].location = Rect(0, 0, image.cols, image.rows);
     }
     for(int i=0; i < NUM_OF_OPP_BOTS; i++) {
-        o_bot[i].location = Rect(arena_center.x - BOUND_RECT, arena_center.y - BOUND_RECT,
-            2* BOUND_RECT, 2 * BOUND_RECT);
+        o_bot[i].location = Rect(0, 0, image.cols, image.rows);
     }
-        oball.location = Rect(arena_center.x - BOUND_RECT, arena_center.y - BOUND_RECT,
-            2* BOUND_RECT, 2 * BOUND_RECT);
+        oball.location = Rect(0, 0, image.cols, image.rows);
+ 
 
     Point2f* pts;
     pts = new Point2f [4];
@@ -53,7 +51,7 @@ void init_image( bool load_pts_file) {
     destroyAllWindows();
     
     namedWindow("image", CV_WINDOW_NORMAL);
-
+    resizeWindow("image", 500, 480);
 }
 
 void update_our_bot()
@@ -75,8 +73,8 @@ void updateframe(){
     cap >> image;
     //image = perspectiveArena(image_mat,image);
 
-    cout << "cam image = " << ((double)cvGetTickCount() -
-            time_for_loop)/(1000.0*(double)cvGetTickFrequency()) << '\t';
+   // cout << "cam image = " << ((double)cvGetTickCount() -
+   //         time_for_loop)/(1000.0*(double)cvGetTickFrequency()) << '\t';
 
     double time_bot_update = (double)cvGetTickCount();
     
@@ -84,12 +82,12 @@ void updateframe(){
     update_opp_bot();
 
     time_bot_update = ((double)cvGetTickCount() - time_bot_update)/(1000.0*(double)cvGetTickFrequency());
-    cout << "bot update = " << time_bot_update << '\t';
+    //cout << "bot update = " << time_bot_update << '\t';
 
     double ball_detection_time = (double)cvGetTickCount();
-    //oball.update();
-    cout << "ball detection time image = " << ((double)cvGetTickCount() -
-            ball_detection_time)/(1000.0*(double)cvGetTickFrequency()) << '\t';
+    oball.update();
+    //cout << "ball detection time image = " << ((double)cvGetTickCount() -
+    //       ball_detection_time)/(1000.0*(double)cvGetTickFrequency()) << '\t';
 }
 
 void display() {

@@ -253,8 +253,8 @@ int movement(int bot_id, int socket, float bot_angle,float angle, float dist, fl
         command[3] = 's';
     }
 
-//		tcpWrite(socket,command);
-		send_command(command);
+		tcpWrite(socket,command);
+//		send_command(command);
 		return 0;
 // printf("Got : %s \n", tcpRead(socket,bot1_buffer));
 }
@@ -324,7 +324,7 @@ char *bot1_buffer = (char *)malloc(BUFFER_SIZE*sizeof(char));
 		}
 		//cout<<value1<<endl;
 //		tcpWrite(socket,command);
-		send_command(command);
+//		send_command(command);
  // printf("Got : %s \n", tcpRead(socket,bot1_buffer));
 //		cout<<command<<'\n';	
 }

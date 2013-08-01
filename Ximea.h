@@ -17,7 +17,7 @@ class Ximea {
 	XI_RETURN stat;
     //image buffer
 	XI_IMG image;
-    void init_Ximea(int device = 0, int time_us = 10000, int binning_mode = 1, 
+    void init_Ximea(int device = 0, int time_us = 10000, int binning_mode = 2, 
     int buffer_queue_size = 3, int buffer_size = 20*1024*1024,
     int recent_frame = 0 );
     Ximea();

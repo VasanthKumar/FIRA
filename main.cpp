@@ -10,6 +10,11 @@
 #include "global_var.h"
 #include "update_frame.h"
 
+#define E 2.71828
+#define Sigmoid(x) 1/(1+ pow(E,-x))
+#define D_sigmoid(x) Sigmoid(x) * ( 1 - Sigmoid(x) )
+#define Eta 0.1
+
 using namespace cv;
 using namespace std;
 
@@ -18,7 +23,7 @@ float integral_error[5] = {0,0,0,0,0};  	//For PID
 float prev_error[5] = {0,0,0,0,0}; 
 int flag_movt[2] = {0,0};
 
-float velocity = 90;
+float velocity = 40;
 char charf = 'p';		
 bool ball_with_bot;
 int frame = 0;
@@ -26,8 +31,7 @@ int frame = 0;
 our_bot bot[NUM_OF_OUR_BOTS];
 opp_bot o_bot[NUM_OF_OPP_BOTS];
 //ball oball = ball();
-opp_bot oball;
-
+ball oball;
 
 int main(int argc,char** argv)
 {
@@ -65,18 +69,18 @@ int main(int argc,char** argv)
     bot[0].lcolor = 'g';
     bot[0].rcolor = 'v';
 
-    o_bot[0].color = 'y';
+//    o_bot[0].color = 'y';
     oball.color = 'o';
 
     int turn_flag=0;
 
     double time_for_loop = 0;
     int angle_buffer=0;
-    int socket;
-    //	int socket = init_wifi(9750,"122.38.0.151");
+//    int socket = 0;
+    int socket = init_wifi(9750,"122.38.0.151");
     char command[4];
     int stop=0;
-    int velocity=40;
+    int velocity=60;
 
     //tcpWrite(socket,command);
 
@@ -89,23 +93,25 @@ int main(int argc,char** argv)
 
     int prev_bot_angle = 0;
 
+
     while( c != 27 )
     {
         frame++;
 
         destinations[0] = oball.center; //for ball
 
-        ball_with_bot = bot[0].ball_with_bot_func(oball.center);
+//        ball_with_bot = bot[0].ball_with_bot_func(oball.center);
         //cout<<"ball bot[0] : "<<ball_with_bot[0]<<"\t";
 
         if(count_of_dest == no_of_dest || ball_with_bot == 0)
             count_of_dest = 0;
 
-        bot[0].dst_point = destinations[count_of_dest];
+//        bot[0].dst_point = destinations[count_of_dest];
 
         updateframe();
 
-//        out << image;
+
+ //       out << image;
 
         circle(image,Point(destinations[count_of_dest].x,destinations[count_of_dest].y),3,Scalar(0,0,255),-1);
         circle(image,Point(destinations[count_of_dest].x,destinations[count_of_dest].y),40,Scalar(0,0,255),1);
@@ -113,23 +119,38 @@ int main(int argc,char** argv)
             circle(image,destinations[i],3,Scalar(255,255,255),-1);
             circle(image,destinations[i],tol,Scalar(255,255,255),1);
         }
+        
+        bot[0].dst_point = oball.center;
+        
+        int angle = angl(bot[0].dst_point, bot[0].back_center, bot[0].front_center);
+        bot[0].distance = sqrt(pow(bot[0].back_center.x - bot[0].dst_point.x,2)
+                + pow(bot[0].back_center.y - bot[0].dst_point.y,2));
+        cout << "angle = " << angle << endl; 
+        cout << "distance = " << bot[0].distance << endl; 
+            //distanc(bot[0].dst_point, bot[0].bot_center);
+        if( bot[0].distance > tol)
+        movement(0,socket,
+                angle,0,bot[0].distance,integral_error,flag_movt,prev_error,velocity,2,tol,false);
+        else
+            integral_error[0] = 0;
+
 
         display();
 
-        cout << "angle = " << bot[0].bot_angle << '\t';
-        cout << "position = " << bot[0].bot_center << endl;
+//        cout << "angle = " << bot[0].bot_angle << '\t';
+//        cout << "position = " << bot[0].bot_center << endl;
         //if(abs(bot[0].bot_angle - prev_bot_angle) > 50)
         //    waitKey(0);
-        prev_bot_angle = bot[0].bot_angle;
+//        prev_bot_angle = bot[0].bot_angle;
 
         //        cout<<"Distance :"<<bot[0].distance<<'\t';
         //        cout<<"Angle :"<<bot[0].bot[0]_angle<<'\t';
         //		if(bot[0].bot[0]_angle>0)
         //		{
-        if(bot[0].bot_angle>180) {
-            bot[0].bot_angle = bot[0].bot_angle-360;
-        }
-        angle_buffer=bot[0].bot_angle;
+//        if(bot[0].bot_angle>180) {
+//            bot[0].bot_angle = bot[0].bot_angle-360;
+//        }
+//        angle_buffer=bot[0].bot_angle;
 
         //			cout<<"count : "<<count_of_dest<<"\t";
         //			movement(0,socket, bot[0].bot[0]_angle,0,bot[0].distance,integral_error,flag_movt,prev_error,velocity,2,tol);
@@ -141,8 +162,8 @@ int main(int argc,char** argv)
         //			cout<<"turn"<<endl;
         //			}
 
-        cout<<"count  "<<count_of_dest<<"\t";
-        cout << endl;
+        //cout<<"count  "<<count_of_dest<<"\t";
+        //cout << endl;
         //			if(charf == 'p')
         //			{
         //				cin>>charf;

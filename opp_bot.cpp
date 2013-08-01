@@ -8,12 +8,13 @@ opp_bot::opp_bot(){
     center = Point( 0, 0 );
     location = Rect(arena_center.x - BOUND_RECT, arena_center.y - BOUND_RECT,
             2* BOUND_RECT, 2 * BOUND_RECT);
-    mask = Mat( Size(image.cols, image.rows), CV_8UC1 );
+    mask = new Mat[1];
+    mask[0] = Mat( Size(image.cols, image.rows), CV_8UC1 );
 }
 
 void opp_bot::FindCenter(){	
     vector <int> area;
-    vector <RotatedRect> opp_jersey_rrect = all_contours( mask, area, 0 );
+    vector <RotatedRect> opp_jersey_rrect = all_contours( mask[0], area, 0 );
     center = Point ( 0, 0 );
     int count = 0;
 
@@ -33,20 +34,20 @@ void opp_bot::FindCenter(){
 }
 
 void opp_bot::update(){
+   
+    Mat roi_image = image(location);
     
-    Mat mask_roi = image(location);
+    GaussianBlur( roi_image, roi_image, Size( 3, 3 ), 0, 0 );
     
-    GaussianBlur( mask_roi, mask_roi, Size( 3, 3 ), 0, 0 );
+    cvtColor(roi_image, roi_image, CV_BGR2HSV);
+
+    mask[0] = Mat::zeros(roi_image.rows,roi_image.cols,CV_8UC1);
     
-    cvtColor(mask_roi, mask_roi, CV_BGR2HSV); 
-    
-    mask = Mat::zeros(mask_roi.rows,mask_roi.cols,CV_8UC1);
-    
-    pick_color( mask_roi, mask, color );
-    imshow("opp bot mask", mask);
+    pick_color( roi_image, mask[0], color );
+    imshow("opp bot mask", mask[0]);
     FindCenter();
     
-    cvtColor(mask_roi, mask_roi, CV_HSV2BGR);
+    cvtColor(roi_image, roi_image, CV_HSV2BGR);
 
     if( center.x != 0 ){
         center = Point( center.x + location.x, center.y + location.y );

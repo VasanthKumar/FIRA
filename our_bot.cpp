@@ -19,6 +19,7 @@ our_bot::our_bot(){
     mask[0] = Mat( Size(image.cols,image.rows), CV_8UC1 );
     mask[1] = Mat( Size(image.cols,image.rows), CV_8UC1 );
     mask[2] = Mat( Size(image.cols,image.rows), CV_8UC1 );
+    cout << "image details our bot " << image.rows << image.cols << endl;
 }
 
 our_bot::~our_bot(){
@@ -48,6 +49,7 @@ double our_bot::orientation(){
 
     angle = angl( Point( dst_point.x,dst_point.y ), back_center, front_center );
 
+    cout << "angle = " << angle << endl;
 //    if( angle < 0 )
 //        angle = -1 * angle;
 //    else if( angle == 1000)		//case where the bot is not found in the bounding box.

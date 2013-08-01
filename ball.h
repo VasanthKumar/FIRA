@@ -1,31 +1,29 @@
+#pragma once
 #include <cv.h>
 #include <highgui.h>
 
-using namespace cv;
+#include "global_var.h"
+#include "colors.h"
+#include "main.h"
+#include "contours.h"
+#include "geometry.h"
+
+using namespace  cv;
 using namespace std;
 
-extern vector<vector<Point> > contours;
-extern vector<Vec4i> hierarchy;
-
-struct ball{
-	Mat main_image;
-	Mat mask;
-	Mat tmp;
-	
-	Point2f center;
-	Point2f prev_center;
-	Point2f velocity;
-	Rect bounding_box;
-	
-	ball();
-	
-	void init(Mat src);
-	Mat getMask(Mat src, int hue_lower, int hue_upper);	
-	void findPosition(int flag);
-	void calculate_velocity();
-	void display_ball_prop();
-	void update();
-	
+class ball{
+    public:
+        Mat *mask;
+        Rect location;
+        Point velocity;
+        Point prev_velocity;
+        Point center;
+        Point prev_center;
+        char color;
+        void update();
+        void FindCenter();
+        void calculate_velocity();
+        ball();
 };
 
-//extern ball oball;
+extern ball oball;

@@ -4,6 +4,7 @@
 
 #include "global_var.h"
 #include "colors.h"
+#include "main.h"
 #include "contours.h"
 #include "geometry.h"
 
@@ -13,7 +14,7 @@ using namespace std;
 class opp_bot{
     public:
         static int total_no_of_objects;
-        Mat mask;
+        Mat *mask;
         Rect location;
         Point center;
         char color;
@@ -24,4 +25,3 @@ class opp_bot{
 };
 
 extern opp_bot o_bot[NUM_OF_OPP_BOTS];
-extern opp_bot oball;

@@ -46,7 +46,7 @@ using namespace cv;
 #define BOT4_LCOLOR 'g'
 #define BOT4_RCOLOR OUR_JERSEY_COLOR
 
-#define BOUND_RECT 50
+#define BOUND_RECT 100
 #define BOT_WIDTH 20
 
 #define ARENA_LENGTH    220

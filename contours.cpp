@@ -31,7 +31,7 @@ RotatedRect largest_contour(Mat img,int &counter)
     while(i<contours.size())
     {
 
-        if(contourArea(contours[i])>50&&contourArea(contours[i])<600) //constraints on size
+        if(contourArea(contours[i])>20&&contourArea(contours[i])<600) //constraints on size
         {
             counter++;
             pos = i;
@@ -82,7 +82,7 @@ RotatedRect closest_contour(Mat img,Point closest_to,int flag)
     while(i<contours.size())
     {
         //size constraints should come here...
-        if(contourArea(contours[i])>50&&contourArea(contours[i])<600)
+        if(contourArea(contours[i])>20&&contourArea(contours[i])<600)
         {
             bounding_rect = minAreaRect( contours[i] );
             dis = distance(bounding_rect.center,closest_to);
@@ -92,13 +92,13 @@ RotatedRect closest_contour(Mat img,Point closest_to,int flag)
                 min_distance = dis;
                 closest_index = i;
                 counter++;
-                cout << "closest area " << contourArea(contours[i]) << endl;
+                //cout << "closest area " << contourArea(contours[i]) << endl;
             }
         }	
         i++;
 
     }
-    cout << "returned" << endl;
+    //cout << "returned" << endl;
     if( counter ){
         return closest_bounding_rect;
     }
@@ -131,7 +131,7 @@ vector <RotatedRect> all_contours(Mat img,vector <int> &Area, int flag)
 
     while(i<contours.size())
     {
-        if(contourArea(contours[i])>100&&contourArea(contours[i])<1200) //constraints on size
+        if(contourArea(contours[i])>20&&contourArea(contours[i])<1200) //constraints on size
         {
         cout << "contour area " << contourArea(contours[i]) << endl;
         bounding_rect.push_back( minAreaRect( contours[i] ) );
